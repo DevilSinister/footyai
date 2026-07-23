@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FootyAI - Splash Screen</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13ec37",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#102213",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Lexend', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        /* Custom pattern for the background to add depth */
+        .pitch-pattern {
+            background-image: radial-gradient(#13ec37 0.5px, transparent 0.5px);
+            background-size: 24px 24px;
+            opacity: 0.03;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#0d1b10]">
+<!-- Splash Screen Container -->
+<div class="relative flex flex-col items-center justify-center min-h-screen w-full overflow-hidden">
+<!-- Subtle Background Pattern -->
+<div class="absolute inset-0 pitch-pattern pointer-events-none"></div>
+<!-- Main Branding Content -->
+<div class="relative z-10 flex flex-col items-center justify-center px-6 text-center">
+<!-- Logo Container -->
+<div class="relative mb-10 group">
+<!-- Soft Glow behind logo -->
+<div class="absolute -inset-4 bg-primary/20 rounded-full blur-2xl opacity-50"></div>
+<!-- Stylized Icon (Robot-Football Hybrid) -->
+<div class="relative flex items-center justify-center w-32 h-32 bg-white dark:bg-background-dark rounded-xl shadow-xl border border-primary/10">
+<span class="material-symbols-outlined text-[64px] text-primary" style="font-variation-settings: 'FILL' 0, 'wght' 200, 'GRAD' 0, 'opsz' 48;">
+                        smart_toy
+                    </span>
+<!-- Small Football overlay icon -->
+<div class="absolute -bottom-2 -right-2 bg-primary text-white w-10 h-10 rounded-lg flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined text-[20px]">
+                            sports_soccer
+                        </span>
+</div>
+</div>
+</div>
+<!-- Typography Block -->
+<div class="space-y-1">
+<h1 class="text-[42px] font-bold tracking-tight text-[#0d1b10] dark:text-white leading-tight">
+                    Footy<span class="text-primary font-extrabold">AI</span>
+</h1>
+<p class="text-lg font-light tracking-wide text-[#0d1b10]/60 dark:text-white/60">
+                    Smart Football Analytics
+                </p>
+</div>
+<!-- Loading Indicator -->
+<div class="mt-16 w-48 space-y-3">
+<div class="flex justify-between items-end px-1">
+<span class="text-[10px] uppercase tracking-widest font-medium text-[#0d1b10]/40 dark:text-white/40">Initializing Engine</span>
+<span class="text-[10px] font-bold text-primary">65%</span>
+</div>
+<div class="h-1.5 w-full bg-primary/10 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 65%;"></div>
+</div>
+</div>
+</div>
+<!-- Footer / Version Info -->
+<div class="absolute bottom-10 flex flex-col items-center gap-1">
+<p class="text-[11px] font-medium text-[#0d1b10]/30 dark:text-white/30 uppercase tracking-[0.2em]">
+                Powered by Advanced Data
+            </p>
+<div class="h-1 w-8 bg-primary/20 rounded-full"></div>
+</div>
+<!-- Decorative Elements -->
+<div class="absolute top-[-10%] right-[-5%] w-64 h-64 bg-primary/5 rounded-full blur-3xl"></div>
+<div class="absolute bottom-[-5%] left-[-5%] w-80 h-80 bg-primary/5 rounded-full blur-3xl"></div>
+</div>
+<!-- Hidden Hero Image Component for Reference (as requested) -->
+<div class="hidden">
+<div class="w-full bg-center bg-no-repeat bg-cover flex flex-col justify-end overflow-hidden bg-[#f8fcf9] rounded-xl min-h-80" data-alt="Cinematic wide shot of an empty modern football stadium at sunset" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAeLNa3v48l6DT9CdaxkNm5_CON7dfOk7AwitMfKbkHCDNKWb56Z47Y3km4IyHWO7BqwOYePWorSdYhEVkRzZxsx6xB42n24b8-A8r6SsWNruBfQvLg_8y4isclxflnW3XQQSYiyBT1TbkUnbU6nP3ULLxoWR9yZkg2qz4fG5nd5kg5Hjim9Kyv1o_5JEJU5w2z7GqNybqAcPpfejA-vylivJrV7ZEUCbMpyt3hCNRwuuIj2aRKZ0vWUqwfqEJIylDraMO4Oe54sddQ");'>
+</div>
+</div>
+</body></html>

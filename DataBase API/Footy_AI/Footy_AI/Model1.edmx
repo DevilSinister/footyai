@@ -1,0 +1,258 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="FootballDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Event">
+          <Key>
+            <PropertyRef Name="E_id" />
+          </Key>
+          <Property Name="E_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Event_type" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Event_name" Type="varchar" MaxLength="50" />
+          <Property Name="VideoPath" Type="varchar" MaxLength="500" />
+          <Property Name="Description" Type="varchar" MaxLength="255" />
+        </EntityType>
+        <EntityType Name="Match">
+          <Key>
+            <PropertyRef Name="M_id" />
+          </Key>
+          <Property Name="M_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="M_date" Type="date" Nullable="false" />
+          <Property Name="M_location" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="User_id" Type="int" />
+        </EntityType>
+        <EntityType Name="Occur_By">
+          <Key>
+            <PropertyRef Name="Occur_id" />
+          </Key>
+          <Property Name="Occur_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="E_id" Type="int" />
+          <Property Name="Pl_id" Type="int" />
+          <Property Name="P_id" Type="int" />
+          <Property Name="start_time" Type="time" Precision="7" />
+          <Property Name="end_time" Type="time" Precision="7" />
+        </EntityType>
+        <EntityType Name="Play">
+          <Key>
+            <PropertyRef Name="Pl_id" />
+          </Key>
+          <Property Name="Pl_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="T_id" Type="int" />
+          <Property Name="M_id" Type="int" />
+          <Property Name="score" Type="int" />
+        </EntityType>
+        <EntityType Name="Player">
+          <Key>
+            <PropertyRef Name="P_id" />
+          </Key>
+          <Property Name="P_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="P_name" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="jersey_no" Type="int" />
+          <Property Name="T_id" Type="int" />
+        </EntityType>
+        <EntityType Name="Team">
+          <Key>
+            <PropertyRef Name="T_id" />
+          </Key>
+          <Property Name="T_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="T_name" Type="varchar" MaxLength="100" Nullable="false" />
+        </EntityType>
+        <EntityType Name="User">
+          <Key>
+            <PropertyRef Name="User_id" />
+          </Key>
+          <Property Name="User_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="username" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Email" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="Password" Type="varchar" MaxLength="100" Nullable="false" />
+        </EntityType>
+        <EntityContainer Name="FootballDBModelStoreContainer">
+          <EntitySet Name="Event" EntityType="Self.Event" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Match" EntityType="Self.Match" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Occur_By" EntityType="Self.Occur_By" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Play" EntityType="Self.Play" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Player" EntityType="Self.Player" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Team" EntityType="Self.Team" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="User" EntityType="Self.User" Schema="dbo" store:Type="Tables" />
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="FootballDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Event">
+          <Key>
+            <PropertyRef Name="E_id" />
+          </Key>
+          <Property Name="E_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Event_type" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Event_name" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="VideoPath" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="Description" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="Match">
+          <Key>
+            <PropertyRef Name="M_id" />
+          </Key>
+          <Property Name="M_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="M_date" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="M_location" Type="String" MaxLength="100" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="User_id" Type="Int32" />
+        </EntityType>
+        <EntityType Name="Occur_By">
+          <Key>
+            <PropertyRef Name="Occur_id" />
+          </Key>
+          <Property Name="Occur_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="E_id" Type="Int32" />
+          <Property Name="Pl_id" Type="Int32" />
+          <Property Name="P_id" Type="Int32" />
+          <Property Name="start_time" Type="Time" Precision="7" />
+          <Property Name="end_time" Type="Time" Precision="7" />
+        </EntityType>
+        <EntityType Name="Play">
+          <Key>
+            <PropertyRef Name="Pl_id" />
+          </Key>
+          <Property Name="Pl_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="T_id" Type="Int32" />
+          <Property Name="M_id" Type="Int32" />
+          <Property Name="score" Type="Int32" />
+        </EntityType>
+        <EntityType Name="Player">
+          <Key>
+            <PropertyRef Name="P_id" />
+          </Key>
+          <Property Name="P_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="P_name" Type="String" MaxLength="100" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="jersey_no" Type="Int32" />
+          <Property Name="T_id" Type="Int32" />
+        </EntityType>
+        <EntityType Name="Team">
+          <Key>
+            <PropertyRef Name="T_id" />
+          </Key>
+          <Property Name="T_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="T_name" Type="String" MaxLength="100" FixedLength="false" Unicode="false" Nullable="false" />
+        </EntityType>
+        <EntityType Name="User">
+          <Key>
+            <PropertyRef Name="User_id" />
+          </Key>
+          <Property Name="User_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="username" Type="String" MaxLength="50" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Email" Type="String" MaxLength="100" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="Password" Type="String" MaxLength="100" FixedLength="false" Unicode="false" Nullable="false" />
+        </EntityType>
+        <EntityContainer Name="FootballDBEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Event" EntityType="Self.Event" />
+          <EntitySet Name="Match" EntityType="Self.Match" />
+          <EntitySet Name="Occur_By" EntityType="Self.Occur_By" />
+          <EntitySet Name="Play" EntityType="Self.Play" />
+          <EntitySet Name="Player" EntityType="Self.Player" />
+          <EntitySet Name="Team" EntityType="Self.Team" />
+          <EntitySet Name="User" EntityType="Self.User" />
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="FootballDBModelStoreContainer" CdmEntityContainer="FootballDBEntities">
+          <EntitySetMapping Name="Event">
+            <EntityTypeMapping TypeName="FootballDBModel.Event">
+              <MappingFragment StoreEntitySet="Event">
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="VideoPath" ColumnName="VideoPath" />
+                <ScalarProperty Name="E_id" ColumnName="E_id" />
+                <ScalarProperty Name="Event_type" ColumnName="Event_type" />
+                <ScalarProperty Name="Event_name" ColumnName="Event_name" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Match">
+            <EntityTypeMapping TypeName="FootballDBModel.Match">
+              <MappingFragment StoreEntitySet="Match">
+                <ScalarProperty Name="M_id" ColumnName="M_id" />
+                <ScalarProperty Name="M_date" ColumnName="M_date" />
+                <ScalarProperty Name="M_location" ColumnName="M_location" />
+                <ScalarProperty Name="User_id" ColumnName="User_id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Occur_By">
+            <EntityTypeMapping TypeName="FootballDBModel.Occur_By">
+              <MappingFragment StoreEntitySet="Occur_By">
+                <ScalarProperty Name="Occur_id" ColumnName="Occur_id" />
+                <ScalarProperty Name="E_id" ColumnName="E_id" />
+                <ScalarProperty Name="Pl_id" ColumnName="Pl_id" />
+                <ScalarProperty Name="P_id" ColumnName="P_id" />
+                <ScalarProperty Name="start_time" ColumnName="start_time" />
+                <ScalarProperty Name="end_time" ColumnName="end_time" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Play">
+            <EntityTypeMapping TypeName="FootballDBModel.Play">
+              <MappingFragment StoreEntitySet="Play">
+                <ScalarProperty Name="Pl_id" ColumnName="Pl_id" />
+                <ScalarProperty Name="T_id" ColumnName="T_id" />
+                <ScalarProperty Name="M_id" ColumnName="M_id" />
+                <ScalarProperty Name="score" ColumnName="score" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Player">
+            <EntityTypeMapping TypeName="FootballDBModel.Player">
+              <MappingFragment StoreEntitySet="Player">
+                <ScalarProperty Name="P_id" ColumnName="P_id" />
+                <ScalarProperty Name="P_name" ColumnName="P_name" />
+                <ScalarProperty Name="jersey_no" ColumnName="jersey_no" />
+                <ScalarProperty Name="T_id" ColumnName="T_id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Team">
+            <EntityTypeMapping TypeName="FootballDBModel.Team">
+              <MappingFragment StoreEntitySet="Team">
+                <ScalarProperty Name="T_id" ColumnName="T_id" />
+                <ScalarProperty Name="T_name" ColumnName="T_name" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="User">
+            <EntityTypeMapping TypeName="FootballDBModel.User">
+              <MappingFragment StoreEntitySet="User">
+                <ScalarProperty Name="User_id" ColumnName="User_id" />
+                <ScalarProperty Name="username" ColumnName="username" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="Password" ColumnName="Password" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="false" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="false" />
+        <DesignerProperty Name="UseLegacyProvider" Value="true" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

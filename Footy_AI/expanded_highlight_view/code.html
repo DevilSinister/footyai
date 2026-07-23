@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Expanded Highlight View</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13ec37",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#102213",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Lexend', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-[#0d1b10] dark:text-white transition-colors duration-300">
+<div class="max-w-[430px] mx-auto min-h-screen bg-background-light dark:bg-background-dark relative overflow-hidden flex flex-col">
+<!-- iOS Status Bar Placeholder -->
+<div class="h-12 w-full flex items-center justify-between px-8 pt-4">
+<span class="text-sm font-semibold">9:41</span>
+<div class="flex gap-1.5 items-center">
+<span class="material-symbols-outlined text-[18px]">signal_cellular_4_bar</span>
+<span class="material-symbols-outlined text-[18px]">wifi</span>
+<span class="material-symbols-outlined text-[18px]">battery_very_low</span>
+</div>
+</div>
+<!-- Top Navigation -->
+<div class="flex items-center p-4 justify-between">
+<button class="size-10 flex items-center justify-center rounded-full bg-white dark:bg-[#1a301d] shadow-sm">
+<span class="material-symbols-outlined text-[#0d1b10] dark:text-white">expand_more</span>
+</button>
+<div class="flex flex-col items-center">
+<h2 class="text-[#0d1b10] dark:text-white text-sm font-bold leading-tight uppercase tracking-widest">Match Highlights</h2>
+<p class="text-xs text-[#4c9a59] font-medium">Premier League • Week 24</p>
+</div>
+<button class="size-10 flex items-center justify-center rounded-full bg-white dark:bg-[#1a301d] shadow-sm text-[#0d1b10] dark:text-white">
+<span class="material-symbols-outlined">share</span>
+</button>
+</div>
+<!-- Expanded Video Player Card -->
+<div class="px-4 py-2">
+<div class="bg-white dark:bg-[#1a301d] rounded-xl shadow-xl overflow-hidden border border-primary/10">
+<!-- Video Container -->
+<div class="relative aspect-video bg-black group">
+<div class="absolute inset-0 bg-cover bg-center opacity-90" data-alt="Cinematic wide shot of a football stadium during a goal highlight" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAJCx9PLCxKtbUsSeit_X1IUwdyRHZYW4WPw7AWGcufioBjBcaDgi1vgzhHzO5YycygVJKLQQSZNKc1I7YzdowB77UbfEGKQGackVKBP2onHmLr_zSYg2Mp7tKiuAiifptfXwq3I538OcAbT3p54mwvevhKLGW9oTrkKPcbaGDqKPrack_ZABRZUwo_F2Vob9VcjD6PMaZHuWisUtOF99wUO1lfXs_FmH62o042OhW_VJYsEnNd4XiGKbjHZXAVPxSqc_8ZfuP0Y_LN");'>
+</div>
+<!-- Play Overlay -->
+<div class="absolute inset-0 flex items-center justify-center bg-black/20">
+<button class="flex items-center justify-center rounded-full size-16 bg-primary text-white shadow-lg shadow-primary/40 transform active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-[32px] fill-current">play_arrow</span>
+</button>
+</div>
+<!-- Bottom Player Controls -->
+<div class="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+<div class="flex h-1.5 items-center gap-2 mb-2">
+<div class="h-full w-1/3 rounded-full bg-primary shadow-[0_0_8px_rgba(19,236,55,0.6)]"></div>
+<div class="size-3 rounded-full bg-white border-2 border-primary"></div>
+<div class="h-full flex-1 rounded-full bg-white/30"></div>
+</div>
+<div class="flex items-center justify-between">
+<p class="text-white text-[10px] font-bold tracking-wider">00:37 / 02:23</p>
+<div class="flex gap-3">
+<span class="material-symbols-outlined text-white text-[18px]">replay_10</span>
+<span class="material-symbols-outlined text-white text-[18px]">fullscreen</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Event Details Section -->
+<div class="p-5">
+<div class="flex items-start justify-between mb-4">
+<div class="flex-1">
+<div class="flex items-center gap-2 mb-1">
+<span class="px-2 py-0.5 bg-primary/10 text-primary rounded-md text-[10px] font-bold uppercase tracking-wider">AI Insight</span>
+<span class="text-[10px] text-gray-400 dark:text-gray-500 font-medium">98% Goal Probability</span>
+</div>
+<h1 class="text-[#0d1b10] dark:text-white text-xl font-bold leading-tight">Magnificent Header</h1>
+<p class="text-[#4c9a59] text-sm font-medium">Erling Haaland • 74th Minute</p>
+</div>
+<div class="flex flex-col items-center">
+<div class="size-12 rounded-lg bg-background-light dark:bg-[#254128] flex flex-col items-center justify-center border border-primary/20">
+<span class="text-primary text-xs font-bold leading-none">MCI</span>
+<span class="text-[#0d1b10] dark:text-white text-lg font-extrabold leading-none mt-1">2</span>
+</div>
+<div class="h-2 w-px bg-gray-300 dark:bg-gray-600"></div>
+<div class="size-12 rounded-lg bg-background-light dark:bg-[#254128] flex flex-col items-center justify-center border border-gray-200 dark:border-gray-700">
+<span class="text-gray-500 text-xs font-bold leading-none">ARS</span>
+<span class="text-[#0d1b10] dark:text-white text-lg font-extrabold leading-none mt-1">1</span>
+</div>
+</div>
+</div>
+<!-- Description and Stats -->
+<div class="space-y-4">
+<p class="text-[#0d1b10] dark:text-gray-300 text-sm leading-relaxed">
+                            Haaland connects with a powerful header from the center of the box to the top right corner following a clinical cross from De Bruyne.
+                        </p>
+<div class="flex gap-3 overflow-x-auto pb-2 custom-scrollbar">
+<div class="flex shrink-0 items-center gap-2 px-3 py-2 rounded-xl bg-background-light dark:bg-[#254128] border border-primary/10">
+<span class="material-symbols-outlined text-primary text-[20px] font-variation-fill">sports_soccer</span>
+<span class="text-[#0d1b10] dark:text-white text-xs font-medium whitespace-nowrap">Goal Scored</span>
+</div>
+<div class="flex shrink-0 items-center gap-2 px-3 py-2 rounded-xl bg-background-light dark:bg-[#254128] border border-primary/10">
+<span class="material-symbols-outlined text-primary text-[20px]">bolt</span>
+<span class="text-[#0d1b10] dark:text-white text-xs font-medium whitespace-nowrap">High Intensity</span>
+</div>
+<div class="flex shrink-0 items-center gap-2 px-3 py-2 rounded-xl bg-background-light dark:bg-[#254128] border border-primary/10">
+<span class="material-symbols-outlined text-primary text-[20px]">analytics</span>
+<span class="text-[#0d1b10] dark:text-white text-xs font-medium whitespace-nowrap">0.82 xG</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Action Row -->
+<div class="flex px-6 py-4 justify-between items-center">
+<button class="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white dark:bg-[#1a301d] shadow-sm border border-gray-100 dark:border-gray-800">
+<span class="material-symbols-outlined text-gray-500 text-[20px]">bookmark</span>
+<span class="text-xs font-bold">Save Clip</span>
+</button>
+<button class="flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-white shadow-lg shadow-primary/30">
+<span class="material-symbols-outlined text-[20px]">ios_share</span>
+<span class="text-xs font-bold">Quick Export</span>
+</button>
+</div>
+<!-- Related Highlights -->
+<div class="mt-auto px-4 pb-10">
+<h3 class="text-[#0d1b10] dark:text-white text-sm font-bold mb-3 px-1">Other Key Moments</h3>
+<div class="flex gap-3 overflow-x-auto custom-scrollbar">
+<!-- Thumbnail Item -->
+<div class="shrink-0 w-32 group">
+<div class="relative aspect-video rounded-lg overflow-hidden mb-2 border border-transparent group-hover:border-primary transition-all">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Blurred shot of a player celebrating a goal" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDtRNT5bQUXb4PUcK7vcvJda07MmmKDCHNGTEJBaxGoyIO02DTxSzb9ivNQ-LARK_eh9kvy9Vpcn5nKnRoNXMXAjv9iW-jBBVqWkL_VanXbnX6IurBWQMVY91rWjvoUzchq6rWxRwVHPi15Mlj_Yd0LBuYzyw8wo-hNaQKPdJ4EdzOPZCXmad2tjg4tDXzNvVXHF-kwK8K88BmgCVpINC-PrqVucIX0nn0w9vbYGvWmMWZct3cv1I6LLMw_YI5AWGuiMbWzUPo8zHGw");'>
+</div>
+<div class="absolute bottom-1 right-1 px-1 py-0.5 bg-black/60 rounded text-[8px] text-white font-bold">45'</div>
+<div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20">
+<span class="material-symbols-outlined text-white text-sm">play_circle</span>
+</div>
+</div>
+<p class="text-[10px] font-bold text-[#0d1b10] dark:text-white line-clamp-1">Corner Save</p>
+<p class="text-[9px] text-gray-500 font-medium">Ederson</p>
+</div>
+<!-- Thumbnail Item -->
+<div class="shrink-0 w-32 group">
+<div class="relative aspect-video rounded-lg overflow-hidden mb-2 border border-transparent group-hover:border-primary transition-all">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Abstract shot of stadium lights reflecting on grass" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC3E9k6KUuiB9PXZ3Pz2wRmYbWWeFzyzX-06CZxgw2MBeHe5gxWegD0fAwxYD6dKWg5E7GUjt6EnGCDmK9jvqT4EIoAFP8jZqsTidfXFaN_seQaesu6cjsLguD8bvl1qTNevwq3HwpVdSBmEF7p218JpFhmg7Pei7ojpjLQItVPsM2iRF1f6Gu6cQ2hxVY73b9HrAocLA_Hkr8XafGEzIZIDExuNAJOx1Fw7hEN1tYGduygXUkGko-pizrVpdgPdOpLEgl_tViNS6Cq");'>
+</div>
+<div class="absolute bottom-1 right-1 px-1 py-0.5 bg-black/60 rounded text-[8px] text-white font-bold">12'</div>
+<div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20">
+<span class="material-symbols-outlined text-white text-sm">play_circle</span>
+</div>
+</div>
+<p class="text-[10px] font-bold text-[#0d1b10] dark:text-white line-clamp-1">Foul - Yellow Card</p>
+<p class="text-[9px] text-gray-500 font-medium">Rodri</p>
+</div>
+<!-- Thumbnail Item -->
+<div class="shrink-0 w-32 group">
+<div class="relative aspect-video rounded-lg overflow-hidden mb-2 border border-transparent group-hover:border-primary transition-all">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Macro shot of a football on the pitch line" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCIWqDQLfIUNe50d775zxVq4PeynI0d8cOdJlZBwVqtePTq2yH9X_3U_zQBvdHt3xNpZhcCet2-ked1lXMzALcbykgXj3CbNIkjQz2zEBOCVVbTByTbEhK8Z6ZQr8Hz7XX4YyXKikDayKLdOXJXMD1O-8JQYgnk5ZcjgnfaRTKrXTd-ZZi1JmutyPFFe-Nge3cX2YowxKyNCN0RvVKfVS83pS_WuNX97vd-eQC7ZqzJbbXR5MN5Cpm9laJsBUZTwcGKlQczCw3tShrT");'>
+</div>
+<div class="absolute bottom-1 right-1 px-1 py-0.5 bg-black/60 rounded text-[8px] text-white font-bold">89'</div>
+<div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20">
+<span class="material-symbols-outlined text-white text-sm">play_circle</span>
+</div>
+</div>
+<p class="text-[10px] font-bold text-[#0d1b10] dark:text-white line-clamp-1">Penalty Call</p>
+<p class="text-[9px] text-gray-500 font-medium">VAR Check</p>
+</div>
+</div>
+</div>
+<!-- iOS Home Indicator -->
+<div class="absolute bottom-1 left-1/2 -translate-x-1/2 w-32 h-1.5 bg-gray-300 dark:bg-gray-700 rounded-full mb-2"></div>
+</div>
+</body></html>

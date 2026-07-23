@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AI Match Summary</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13ec37",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#102213",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Lexend', sans-serif;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-[#0d1b10] dark:text-white transition-colors duration-300">
+<div class="max-w-[430px] mx-auto min-h-screen flex flex-col relative pb-20 overflow-x-hidden">
+<!-- Header / Top App Bar -->
+<header class="flex items-center justify-between p-4 sticky top-0 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md z-10">
+<button class="size-10 flex items-center justify-center rounded-full bg-white dark:bg-zinc-800 shadow-sm">
+<span class="material-symbols-outlined text-xl">arrow_back_ios_new</span>
+</button>
+<h1 class="text-lg font-bold tracking-tight">AI Match Summary</h1>
+<button class="size-10 flex items-center justify-center rounded-full bg-white dark:bg-zinc-800 shadow-sm">
+<span class="material-symbols-outlined text-xl text-primary">share</span>
+</button>
+</header>
+<!-- Scoreboard Card -->
+<main class="px-4 py-2 space-y-4">
+<div class="bg-white dark:bg-zinc-900 rounded-xl p-6 shadow-sm border border-emerald-50 dark:border-zinc-800">
+<div class="flex justify-between items-center mb-4">
+<span class="text-xs font-semibold bg-primary/10 text-primary px-3 py-1 rounded-full">Premier League</span>
+<span class="text-xs font-medium opacity-60">Full Time</span>
+</div>
+<div class="flex items-center justify-around gap-2">
+<div class="flex flex-col items-center gap-2">
+<div class="size-16 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center p-2 shadow-inner overflow-hidden">
+<img alt="Home Team Logo" class="w-full h-full object-contain" data-alt="Minimalist football club crest logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOHdR-_U2BmBZcXzXcoChcRG2IGC_CwCPGYij_9O_Ahn8a6t1zCwohDY_gIzUPiNkEsnNi8WKS6RcGQQk1pa_jMPyEsjALCu2qXzzSbGR8bBgLxGatJskqOLxLjo0WioWnsELE2SGJ6pR6_5ZeWW7h10-N1_6_bc6N68e4DN2DL2Tx37rLG2bquVa34bUluKaegjQSiSgfTJkBh_WSwhD53H2FApQzxTWnWBRvzs78-pvclWj6yYmIPQafEWHNEthWm70_KpjbGPe_"/>
+</div>
+<span class="text-sm font-bold">Liverpool</span>
+</div>
+<div class="flex flex-col items-center">
+<div class="text-4xl font-extrabold tracking-tighter flex gap-3">
+<span>3</span>
+<span class="text-primary opacity-50">-</span>
+<span>1</span>
+</div>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="size-16 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center p-2 shadow-inner overflow-hidden">
+<img alt="Away Team Logo" class="w-full h-full object-contain" data-alt="Clean circular sports team emblem" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCx-C6MwZS7K95PZTJunhX4DN5vOb8Eku4YMTVj610tAdIe0oMqodtaQQQaenRhXRQEetinQK4VVaD7LkgH--KAfWFbWOXiREv9Vkwc5pCSoFCWdS6XjQBQFzSPCqwxKwEdzO5ROsFbtIIevgryfeKSanyobuCwYWUphMNmk-FPJmAEB21IQziluZJSzV1gSSe0HgAYnSHgxeu_RjlEW2-cHqJSXERXRKoGNRdzhgqxgn-QeW1UxgT8kwh-lJFg3G7rZhB5cyXSJp9n"/>
+</div>
+<span class="text-sm font-bold">Chelsea</span>
+</div>
+</div>
+</div>
+<!-- AI Insight Highlight -->
+<div class="relative overflow-hidden rounded-xl border border-primary/20 bg-primary/5 p-5">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-primary text-xl">smart_toy</span>
+<p class="text-sm font-bold text-primary tracking-wide">AI TACTICAL INSIGHT</p>
+</div>
+<p class="text-[15px] leading-relaxed font-normal text-zinc-700 dark:text-zinc-300">
+                    Liverpool's high-press intensity surged to 88% in the second half, effectively nullifying Chelsea's midfield build-up. Clinical finishing from Mo Salah made the difference.
+                </p>
+</div>
+<!-- Match Stats -->
+<section class="space-y-3">
+<h3 class="text-sm font-bold opacity-50 uppercase tracking-widest px-1">Key Metrics</h3>
+<div class="grid grid-cols-1 gap-3">
+<!-- Stat Item: Possession -->
+<div class="bg-white dark:bg-zinc-900 p-4 rounded-xl shadow-sm border border-emerald-50 dark:border-zinc-800">
+<div class="flex justify-between text-xs font-bold mb-2">
+<span>58%</span>
+<span class="opacity-50">Possession</span>
+<span>42%</span>
+</div>
+<div class="flex h-1.5 w-full bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+<div class="bg-primary h-full" style="width: 58%"></div>
+<div class="bg-zinc-300 dark:bg-zinc-700 h-full flex-1"></div>
+</div>
+</div>
+<!-- Stat Item: Shots -->
+<div class="bg-white dark:bg-zinc-900 p-4 rounded-xl shadow-sm border border-emerald-50 dark:border-zinc-800">
+<div class="flex justify-between text-xs font-bold mb-2">
+<span>14 (6)</span>
+<span class="opacity-50">Shots (on target)</span>
+<span>9 (2)</span>
+</div>
+<div class="flex h-1.5 w-full bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+<div class="bg-primary h-full" style="width: 65%"></div>
+<div class="bg-zinc-300 dark:bg-zinc-700 h-full flex-1"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Match Timeline -->
+<section class="space-y-3">
+<div class="flex items-center justify-between px-1">
+<h3 class="text-sm font-bold opacity-50 uppercase tracking-widest">Match Events</h3>
+<button class="text-primary text-xs font-bold">Filter By Team</button>
+</div>
+<div class="bg-white dark:bg-zinc-900 rounded-xl p-4 shadow-sm border border-emerald-50 dark:border-zinc-800">
+<!-- Event 1 -->
+<div class="grid grid-cols-[40px_1fr] gap-x-3 group">
+<div class="flex flex-col items-center">
+<div class="z-[2] size-8 rounded-full bg-primary/20 flex items-center justify-center border-2 border-white dark:border-zinc-900">
+<span class="material-symbols-outlined text-sm text-primary fill-1">sports_soccer</span>
+</div>
+<div class="w-0.5 h-12 bg-zinc-100 dark:bg-zinc-800 -mt-1 group-last:hidden"></div>
+</div>
+<div class="pb-6">
+<p class="text-sm font-bold">Goal: Mohamed Salah</p>
+<div class="flex items-center gap-2 opacity-60 text-xs">
+<span>24'</span>
+<span>•</span>
+<span>Assist: Luis Diaz</span>
+</div>
+</div>
+</div>
+<!-- Event 2 -->
+<div class="grid grid-cols-[40px_1fr] gap-x-3 group">
+<div class="flex flex-col items-center">
+<div class="z-[2] size-8 rounded-full bg-orange-100 flex items-center justify-center border-2 border-white dark:border-zinc-900">
+<span class="material-symbols-outlined text-sm text-orange-500 fill-1">style</span>
+</div>
+<div class="w-0.5 h-12 bg-zinc-100 dark:bg-zinc-800 -mt-1 group-last:hidden"></div>
+</div>
+<div class="pb-6">
+<p class="text-sm font-bold">Yellow Card: Enzo Fernandez</p>
+<div class="flex items-center gap-2 opacity-60 text-xs">
+<span>41'</span>
+<span>•</span>
+<span>Tactical Foul</span>
+</div>
+</div>
+</div>
+<!-- Event 3 -->
+<div class="grid grid-cols-[40px_1fr] gap-x-3 group">
+<div class="flex flex-col items-center">
+<div class="z-[2] size-8 rounded-full bg-primary/20 flex items-center justify-center border-2 border-white dark:border-zinc-900">
+<span class="material-symbols-outlined text-sm text-primary fill-1">sports_soccer</span>
+</div>
+<div class="w-0.5 h-12 bg-zinc-100 dark:bg-zinc-800 -mt-1 group-last:hidden"></div>
+</div>
+<div class="pb-6">
+<p class="text-sm font-bold">Goal: Darwin Nunez</p>
+<div class="flex items-center gap-2 opacity-60 text-xs">
+<span>78'</span>
+<span>•</span>
+<span>Solo Effort</span>
+</div>
+</div>
+</div>
+<!-- Event 4 (Last) -->
+<div class="grid grid-cols-[40px_1fr] gap-x-3 group">
+<div class="flex flex-col items-center">
+<div class="z-[2] size-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center border-2 border-white dark:border-zinc-900">
+<span class="material-symbols-outlined text-sm opacity-50">history</span>
+</div>
+</div>
+<div>
+<p class="text-sm font-bold">Match Concluded</p>
+<div class="flex items-center gap-2 opacity-60 text-xs">
+<span>90+5'</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- POTM Section -->
+<section class="space-y-3 pb-8">
+<h3 class="text-sm font-bold opacity-50 uppercase tracking-widest px-1">Player of the Match</h3>
+<div class="bg-primary p-5 rounded-xl text-zinc-900 flex items-center justify-between shadow-lg shadow-primary/20">
+<div class="flex items-center gap-4">
+<div class="size-16 rounded-lg bg-white/20 overflow-hidden relative">
+<img alt="Player Headshot" class="w-full h-full object-cover" data-alt="Portrait cutout of a football player" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD1gtueLV58nHMqthQcju5JpMFfjzfsx_m8Xybx6U5sVZag_qWJ5D1inBE0ZpX49EajrNfgLfB9DWTp5Fsfhgt6ND0OcJEgcwm4WI-vPqPYRnbxkude6LOzfI1Rk0g3P78evFXe5wHEqepXq2KwBcUT-Iiwn6eSuyaRwOMMDOKmFjjA4hj1t_EWBGJJaD_8w-XVSWDu_hlCyiE9N577NjOvlfwhExgxjf-T79FDBFHtz1C9QUKxSXg-YSojV3BiY0qdbxWK9TDYO9nB"/>
+</div>
+<div>
+<p class="text-lg font-extrabold leading-none mb-1">Mo Salah</p>
+<p class="text-xs font-bold opacity-70">Forward • Liverpool</p>
+</div>
+</div>
+<div class="text-center">
+<p class="text-3xl font-black leading-none">8.9</p>
+<p class="text-[10px] font-bold uppercase tracking-tighter opacity-70">Rating</p>
+</div>
+</div>
+</section>
+</main>
+<!-- Navigation Bar -->
+<nav class="fixed bottom-0 left-0 right-0 max-w-[430px] mx-auto bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border-t border-zinc-100 dark:border-zinc-800 px-6 py-3 flex justify-between items-center z-20">
+<button class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined fill-1">summarize</span>
+<span class="text-[10px] font-bold">Summary</span>
+</button>
+<button class="flex flex-col items-center gap-1 opacity-40">
+<span class="material-symbols-outlined">analytics</span>
+<span class="text-[10px] font-bold">Stats</span>
+</button>
+<button class="flex flex-col items-center gap-1 opacity-40">
+<span class="material-symbols-outlined">groups</span>
+<span class="text-[10px] font-bold">Lineups</span>
+</button>
+<button class="flex flex-col items-center gap-1 opacity-40">
+<span class="material-symbols-outlined">videocam</span>
+<span class="text-[10px] font-bold">Replay</span>
+</button>
+</nav>
+</div>
+</body></html>

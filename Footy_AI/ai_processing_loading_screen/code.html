@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "primary": "#13ec37",
+                "background-light": "#f6f8f6",
+                "background-dark": "#102213",
+              },
+              fontFamily: {
+                "display": ["Lexend", "sans-serif"]
+              },
+              borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+            },
+          },
+        }
+    </script>
+<style>
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 0.5; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.5; }
+        }
+        .animate-pulse-ring {
+            animation: pulse-ring 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        .bg-mesh {
+            background-color: #f6f8f6;
+            background-image: radial-gradient(at 0% 0%, rgba(19, 236, 55, 0.05) 0px, transparent 50%),
+                              radial-gradient(at 100% 100%, rgba(19, 236, 55, 0.08) 0px, transparent 50%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-display antialiased selection:bg-primary/30">
+<div class="relative flex h-screen w-full flex-col bg-background-light dark:bg-background-dark overflow-hidden bg-mesh">
+<!-- Top Navigation Area -->
+<div class="flex items-center justify-between p-6">
+<div class="flex items-center gap-2">
+<div class="bg-primary/10 p-2 rounded-lg">
+<span class="material-symbols-outlined text-primary text-2xl">sports_soccer</span>
+</div>
+<h1 class="text-background-dark dark:text-white text-lg font-bold tracking-tight">Football AI</h1>
+</div>
+<div class="flex items-center gap-1 bg-white/50 dark:bg-white/5 border border-primary/10 px-3 py-1 rounded-full">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+</span>
+<span class="text-[10px] font-semibold uppercase tracking-wider text-background-dark/60 dark:text-white/60">Live Analysis</span>
+</div>
+</div>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col items-center justify-center px-8 text-center">
+<!-- Central Visual Element -->
+<div class="relative mb-12">
+<!-- Glowing Background Circles -->
+<div class="absolute inset-0 -m-8 rounded-full bg-primary/5 blur-3xl"></div>
+<!-- Circular Progress Container -->
+<div class="relative h-56 w-56 flex items-center justify-center">
+<!-- Outer Pulse Ring -->
+<div class="absolute inset-0 rounded-full border-[1px] border-primary/20 animate-pulse-ring"></div>
+<!-- Middle Ring -->
+<div class="absolute inset-4 rounded-full border-[3px] border-primary/10"></div>
+<!-- Active Progress Arc (Visual Representation) -->
+<svg class="absolute inset-4 h-48 w-48 -rotate-90">
+<circle class="text-primary" cx="96" cy="96" fill="transparent" r="92" stroke="currentColor" stroke-dasharray="578" stroke-dashoffset="200" stroke-linecap="round" stroke-width="4"></circle>
+</svg>
+<!-- Center Icon/Logo -->
+<div class="relative z-10 bg-white dark:bg-background-dark shadow-xl shadow-primary/10 h-32 w-32 rounded-full flex items-center justify-center border border-primary/5">
+<span class="material-symbols-outlined text-primary text-6xl font-light">
+                            analytics
+                        </span>
+</div>
+<!-- Percentage Badge -->
+<div class="absolute -bottom-2 right-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg shadow-primary/40">
+                        65%
+                    </div>
+</div>
+</div>
+<!-- Typography & Status -->
+<div class="space-y-4 max-w-sm">
+<div class="space-y-1">
+<h2 class="text-background-dark dark:text-white text-2xl font-semibold tracking-tight leading-tight">
+                        AI is analyzing match footage...
+                    </h2>
+<p class="text-background-dark/50 dark:text-white/50 text-base font-medium">
+                        Finding the best moments...
+                    </p>
+</div>
+<!-- Status List (Subtle items) -->
+<div class="pt-8 flex flex-col items-center gap-3">
+<div class="flex items-center gap-3 bg-white/40 dark:bg-white/5 px-4 py-2 rounded-xl border border-primary/5 w-full">
+<span class="material-symbols-outlined text-primary text-xl">check_circle</span>
+<span class="text-sm text-background-dark/70 dark:text-white/70">Identifying player movements</span>
+</div>
+<div class="flex items-center gap-3 bg-white/40 dark:bg-white/5 px-4 py-2 rounded-xl border border-primary/5 w-full opacity-60">
+<span class="material-symbols-outlined text-primary/40 text-xl">pending</span>
+<span class="text-sm text-background-dark/70 dark:text-white/70">Calculating ball velocity</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer Area -->
+<div class="p-8 flex flex-col items-center gap-6">
+<div class="flex items-center gap-2">
+<span class="text-[10px] font-bold text-background-dark/30 dark:text-white/30 uppercase tracking-[0.2em]">Powered by</span>
+<div class="h-[1px] w-8 bg-background-dark/10 dark:bg-white/10"></div>
+<span class="text-[10px] font-extrabold text-primary uppercase tracking-[0.2em]">Football Intelligence</span>
+</div>
+<!-- Subtle Cancel Action -->
+<button class="text-sm font-medium text-background-dark/40 dark:text-white/40 hover:text-primary transition-colors duration-300">
+                Cancel Analysis
+            </button>
+</div>
+<!-- Decorative Elements -->
+<div class="absolute top-[-10%] right-[-10%] w-64 h-64 bg-primary/5 rounded-full blur-[100px]"></div>
+<div class="absolute bottom-[-5%] left-[-5%] w-48 h-48 bg-primary/5 rounded-full blur-[80px]"></div>
+</div>
+</body></html>

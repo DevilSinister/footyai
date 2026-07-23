@@ -1,0 +1,14 @@
+# Ignore generated and local-only files
+**/node_modules/
+**/.dart_tool/
+**/build/
+**/.idea/
+**/.vs/
+**/bin/
+**/obj/
+**/packages/
+**/*.log
+**/*.user
+**/*.suo
+Footy_AI - Copy/
+DataBase API - Copy/
