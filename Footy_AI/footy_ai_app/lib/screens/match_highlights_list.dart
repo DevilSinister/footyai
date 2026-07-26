@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme.dart';
 import '../models/match_highlight.dart';
 import '../services/api_service.dart';
+import '../services/session_service.dart';
 
 class MatchHighlightsList extends StatefulWidget {
   const MatchHighlightsList({super.key});
@@ -15,24 +16,117 @@ class _MatchHighlightsListState extends State<MatchHighlightsList> {
   final List<String> _filters = ['All', 'Goals', 'Cards', 'Saves'];
 
   List<MatchHighlight> _highlights = [];
+  _MatchSummaryInfo _summaryInfo = const _MatchSummaryInfo(
+    homeTeam: 'Team A',
+    awayTeam: 'Team B',
+    homeScore: 0,
+    awayScore: 0,
+    dateLabel: 'Latest processed match',
+    location: 'Unknown location',
+    statusLabel: 'NO EVENTS FOUND',
+  );
+  bool _isLoading = true;
+  String? _error;
 
   @override
   void initState() {
     super.initState();
-    _loadHighlights();
+    _loadContent();
   }
 
-  Future<void> _loadHighlights() async {
-    final highlights = await ApiService.fetchHighlights();
-    if (mounted) {
+  Future<void> _loadContent() async {
+    try {
+      final userId = await SessionService.getUserId();
+      final summary = await ApiService.fetchLatestMatchSummary(userId: userId);
+      final highlights = await ApiService.fetchHighlights(userId: userId);
+
+      if (!mounted) return;
       setState(() {
+        _summaryInfo = summary == null
+            ? const _MatchSummaryInfo(
+                homeTeam: 'Team A',
+                awayTeam: 'Team B',
+                homeScore: 0,
+                awayScore: 0,
+                dateLabel: 'Latest processed match',
+                location: 'Unknown location',
+                statusLabel: 'NO EVENTS FOUND',
+              )
+            : _MatchSummaryInfo.fromSummary(summary);
         _highlights = highlights;
+        _isLoading = false;
+        _error = null;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        backgroundColor: AppColors.backgroundLight,
+        body: SafeArea(
+          child: Center(
+            child: CircularProgressIndicator(color: AppColors.primary),
+          ),
+        ),
+      );
+    }
+
+    if (_error != null) {
+      return Scaffold(
+        backgroundColor: AppColors.backgroundLight,
+        body: SafeArea(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Failed to load live match data',
+                    style: TextStyle(
+                      fontFamily: 'Lexend',
+                      fontSize: 16,
+                      color: Colors.grey.shade700,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _error!,
+                    style: TextStyle(
+                      fontFamily: 'Lexend',
+                      fontSize: 12,
+                      color: Colors.grey.shade500,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        _isLoading = true;
+                        _error = null;
+                      });
+                      _loadContent();
+                    },
+                    child: const Text('Retry', style: TextStyle(color: AppColors.primary)),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
       body: SafeArea(
@@ -91,6 +185,7 @@ class _MatchHighlightsListState extends State<MatchHighlightsList> {
   }
 
   Widget _buildMatchSummary() {
+    final info = _summaryInfo;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: Column(
@@ -98,14 +193,14 @@ class _MatchHighlightsListState extends State<MatchHighlightsList> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildTeamLogo('RMA', true),
+              _buildTeamLogo(info.homeTeam, true),
               const SizedBox(width: 24),
               Column(
                 children: [
                   Row(
                     children: [
-                      const Text(
-                        '3',
+                      Text(
+                        '${info.homeScore}',
                         style: TextStyle(
                           fontFamily: 'Lexend',
                           fontSize: 36,
@@ -123,8 +218,8 @@ class _MatchHighlightsListState extends State<MatchHighlightsList> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      const Text(
-                        '2',
+                      Text(
+                        '${info.awayScore}',
                         style: TextStyle(
                           fontFamily: 'Lexend',
                           fontSize: 36,
@@ -156,13 +251,13 @@ class _MatchHighlightsListState extends State<MatchHighlightsList> {
                 ],
               ),
               const SizedBox(width: 24),
-              _buildTeamLogo('BAR', false),
+              _buildTeamLogo(info.awayTeam, false),
             ],
           ),
           const SizedBox(height: 16),
-          const Text(
-            'May 24, 2024 • Santiago Bernabéu',
-            style: TextStyle(
+          Text(
+            '${info.dateLabel} • ${info.location}',
+            style: const TextStyle(
               fontFamily: 'Lexend',
               fontSize: 14,
               fontWeight: FontWeight.w500,
@@ -179,9 +274,9 @@ class _MatchHighlightsListState extends State<MatchHighlightsList> {
                 color: AppColors.primary,
               ),
               const SizedBox(width: 4),
-              const Text(
-                'AI-POWERED ANALYSIS READY',
-                style: TextStyle(
+              Text(
+                info.statusLabel,
+                style: const TextStyle(
                   fontFamily: 'Lexend',
                   fontSize: 10,
                   color: Colors.grey,
@@ -314,11 +409,25 @@ class _MatchHighlightsListState extends State<MatchHighlightsList> {
   }
 
   Widget _buildHighlightsList() {
+    final highlights = _filteredHighlights;
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
         const SizedBox(height: 80),
-        ..._highlights.map((highlight) => _buildHighlightCard(highlight)),
+        if (highlights.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 24),
+            child: Text(
+              'No live highlights found yet.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: 'Lexend',
+                color: Colors.grey.shade600,
+              ),
+            ),
+          )
+        else
+          ...highlights.map((highlight) => _buildHighlightCard(highlight)),
       ],
     );
   }
@@ -381,7 +490,7 @@ class _MatchHighlightsListState extends State<MatchHighlightsList> {
           ],
         ),
         children: [
-          if (highlight.description != null) ...[
+          if (highlight.description.isNotEmpty) ...[
             Container(
               height: 180,
               decoration: BoxDecoration(
@@ -505,7 +614,7 @@ class _MatchHighlightsListState extends State<MatchHighlightsList> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    highlight.description!,
+                    highlight.description,
                     style: TextStyle(
                       fontFamily: 'Lexend',
                       fontSize: 12,
@@ -615,5 +724,131 @@ class _MatchHighlightsListState extends State<MatchHighlightsList> {
         ),
       ),
     );
+  }
+
+  List<MatchHighlight> get _filteredHighlights {
+    if (_selectedFilter == 'All') {
+      return _highlights;
+    }
+
+    final expected = switch (_selectedFilter) {
+      'Goals' => 'goal',
+      'Cards' => 'card',
+      'Saves' => 'save',
+      _ => '',
+    };
+
+    return _highlights.where((highlight) => highlight.type.toLowerCase() == expected).toList();
+  }
+}
+
+class _MatchSummaryInfo {
+  const _MatchSummaryInfo({
+    required this.homeTeam,
+    required this.awayTeam,
+    required this.homeScore,
+    required this.awayScore,
+    required this.dateLabel,
+    required this.location,
+    required this.statusLabel,
+  });
+
+  final String homeTeam;
+  final String awayTeam;
+  final int homeScore;
+  final int awayScore;
+  final String dateLabel;
+  final String location;
+  final String statusLabel;
+
+  factory _MatchSummaryInfo.fromSummary(Map<String, dynamic> summary) {
+    final match = summary['match'] is Map<String, dynamic>
+        ? summary['match'] as Map<String, dynamic>
+        : const <String, dynamic>{};
+    final teams = (summary['teams'] as List<dynamic>?) ?? const [];
+    final play = (summary['play'] as List<dynamic>?) ?? const [];
+    final scoreboard = _scoreboardFromSummary(teams, play);
+    final matchDateRaw = (match['mDate'] ?? match['matchDate'] ?? '').toString();
+    final matchDate = DateTime.tryParse(matchDateRaw);
+    final location = _readString(match, ['mLocation', 'location']) ?? 'Unknown location';
+    final eventCount = (summary['events'] as List<dynamic>?)?.length ?? 0;
+    final statusLabel = eventCount > 0 ? 'LIVE DATA LOADED' : 'NO EVENTS FOUND';
+
+    return _MatchSummaryInfo(
+      homeTeam: scoreboard['homeTeam'] as String,
+      awayTeam: scoreboard['awayTeam'] as String,
+      homeScore: scoreboard['homeScore'] as int,
+      awayScore: scoreboard['awayScore'] as int,
+      dateLabel: matchDate == null ? 'Latest processed match' : _formatDate(matchDate),
+      location: location,
+      statusLabel: statusLabel,
+    );
+  }
+
+  static Map<String, Object> _scoreboardFromSummary(
+    List<dynamic> teams,
+    List<dynamic> play,
+  ) {
+    String homeTeam = 'Team A';
+    String awayTeam = 'Team B';
+    int homeTeamId = -1;
+    int awayTeamId = -1;
+    int homeScore = 0;
+    int awayScore = 0;
+
+    if (teams.isNotEmpty && teams.first is Map<String, dynamic>) {
+      final firstTeam = teams.first as Map<String, dynamic>;
+      homeTeam = _readString(firstTeam, ['teamName', 'tName', 'name']) ?? homeTeam;
+      homeTeamId = _readInt(firstTeam, ['teamId', 'tId', 'id']) ?? homeTeamId;
+    }
+
+    if (teams.length > 1 && teams[1] is Map<String, dynamic>) {
+      final secondTeam = teams[1] as Map<String, dynamic>;
+      awayTeam = _readString(secondTeam, ['teamName', 'tName', 'name']) ?? awayTeam;
+      awayTeamId = _readInt(secondTeam, ['teamId', 'tId', 'id']) ?? awayTeamId;
+    }
+
+    for (final row in play) {
+      if (row is! Map<String, dynamic>) continue;
+      final teamId = _readInt(row, ['teamId', 'tID', 'tId']);
+      final score = _readInt(row, ['score']) ?? 0;
+      if (teamId != null && teamId == homeTeamId) homeScore = score;
+      if (teamId != null && teamId == awayTeamId) awayScore = score;
+    }
+
+    return {
+      'homeTeam': homeTeam,
+      'awayTeam': awayTeam,
+      'homeScore': homeScore,
+      'awayScore': awayScore,
+    };
+  }
+
+  static int? _readInt(Map<String, dynamic> item, List<String> keys) {
+    for (final key in keys) {
+      final value = item[key];
+      if (value is int) return value;
+      if (value is num) return value.toInt();
+      if (value != null) {
+        final parsed = int.tryParse(value.toString());
+        if (parsed != null) return parsed;
+      }
+    }
+    return null;
+  }
+
+  static String? _readString(Map<String, dynamic> item, List<String> keys) {
+    for (final key in keys) {
+      final value = item[key];
+      if (value == null) continue;
+      final text = value.toString();
+      if (text.isNotEmpty) return text;
+    }
+    return null;
+  }
+
+  static String _formatDate(DateTime date) {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return '${date.day} ${months[date.month - 1]} ${date.year}';
   }
 }

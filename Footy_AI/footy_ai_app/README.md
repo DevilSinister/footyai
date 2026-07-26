@@ -19,9 +19,9 @@ samples, guidance on mobile development, and a full API reference.
 
 This app supports runtime endpoint configuration via `--dart-define`.
 
-If you do nothing, it will use these defaults:
-- `DB_API_BASE_URL`: `http://10.88.195.39/Footy_AI/api`
-- `PROCESSING_API_BASE_URL`: `http://10.88.195.39:8000`
+You should pass these values at build time:
+- `DB_API_BASE_URL`
+- `PROCESSING_API_BASE_URL`
 
 - `DB_API_BASE_URL`: C# API base URL
 - `PROCESSING_API_BASE_URL`: Python FastAPI base URL
@@ -30,14 +30,14 @@ Example:
 
 ```bash
 flutter run ^
-  --dart-define=DB_API_BASE_URL=http://192.168.18.14/Footy_AI/api ^
-  --dart-define=PROCESSING_API_BASE_URL=http://192.168.18.14:8000
+  --dart-define=DB_API_BASE_URL=http://<current-ip>/Footy_AI/api ^
+  --dart-define=PROCESSING_API_BASE_URL=http://<current-ip>:8000
 ```
 
 APK build example:
 
 ```bash
 flutter build apk ^
-  --dart-define=DB_API_BASE_URL=http://192.168.18.14/Footy_AI/api ^
-  --dart-define=PROCESSING_API_BASE_URL=http://192.168.18.14:8000
+  --dart-define=DB_API_BASE_URL=http://<current-ip>/Footy_AI/api ^
+  --dart-define=PROCESSING_API_BASE_URL=http://<current-ip>:8000
 ```

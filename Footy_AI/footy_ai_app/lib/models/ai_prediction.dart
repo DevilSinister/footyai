@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 class AIPrediction {
   final String matchId;
   final String homeTeam;
