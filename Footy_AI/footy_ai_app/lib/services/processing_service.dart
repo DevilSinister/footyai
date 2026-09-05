@@ -23,12 +23,11 @@ class ProcessingService {
             body: jsonEncode({
               'video_url': videoUrl,
               'user_id': userId,
-              'source_type': 'auto',
             }),
           )
           .timeout(const Duration(seconds: 90));
 
-      if (response.statusCode != 200) {
+      if (response.statusCode != 200 && response.statusCode != 202) {
         lastError = 'Server returned ${response.statusCode}: ${response.body}';
         return null;
       }
@@ -60,7 +59,7 @@ class ProcessingService {
       final streamed = await request.send();
       final response = await http.Response.fromStream(streamed);
 
-      if (response.statusCode != 200) {
+      if (response.statusCode != 200 && response.statusCode != 202) {
         lastError = 'Server returned ${response.statusCode}: ${response.body}';
         return null;
       }
@@ -104,14 +103,41 @@ class ProcessingService {
       return null;
     }
   }
+
+  static Future<bool> confirmTeams({
+    required String jobId,
+    required String team1Name,
+    required String team2Name,
+  }) async {
+    try {
+      lastError = null;
+      final response = await http
+          .post(
+            Uri.parse('$_processingBaseUrl/api/processing/confirm-teams/$jobId'),
+            headers: const {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+            body: jsonEncode({
+              'team_1_name': team1Name,
+              'team_2_name': team2Name,
+            }),
+          )
+          .timeout(const Duration(seconds: 30));
+      if (response.statusCode == 200 || response.statusCode == 202) {
+        return true;
+      }
+      lastError = 'Server returned ${response.statusCode}: ${response.body}';
+      return false;
+    } catch (error) {
+      lastError = error.toString();
+      return false;
+    }
+  }
 }
 
 class _ProgressMultipartRequest extends http.MultipartRequest {
-  _ProgressMultipartRequest(
-    super.method,
-    super.url, {
-    this.onProgress,
-  });
+  _ProgressMultipartRequest(super.method, super.url, {this.onProgress});
 
   final void Function(double progress)? onProgress;
 

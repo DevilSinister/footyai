@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+
 import '../services/processing_service.dart';
 import '../services/session_service.dart';
 import '../theme.dart';
@@ -18,15 +19,23 @@ class _AIVideoUploadState extends State<AIVideoUpload> {
   double _uploadProgress = 0;
 
   Future<void> _pickVideo() async {
-    final file = await _picker.pickVideo(source: ImageSource.gallery);
-    if (!mounted) return;
-    setState(() => _selectedVideo = file);
+    try {
+      final video = await _picker.pickVideo(source: ImageSource.gallery);
+      if (!mounted || video == null) return;
+      setState(() => _selectedVideo = video);
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Unable to open the video library: $error')),
+      );
+    }
   }
 
   Future<void> _submitFile() async {
-    if (_selectedVideo == null) {
+    final video = _selectedVideo;
+    if (video == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Select a video file first.')),
+        const SnackBar(content: Text('Select a match video first.')),
       );
       return;
     }
@@ -35,371 +44,149 @@ class _AIVideoUploadState extends State<AIVideoUpload> {
       _isSubmitting = true;
       _uploadProgress = 0;
     });
-
     final userId = await SessionService.getUserId();
     final jobId = await ProcessingService.submitVideoFile(
-      filePath: _selectedVideo!.path,
-      userId: userId ?? 1,
+      filePath: video.path,
+      userId: userId,
       onProgress: (progress) {
-        if (!mounted) return;
-        setState(() => _uploadProgress = progress.clamp(0.0, 1.0));
+        if (mounted) {
+          setState(() => _uploadProgress = progress.clamp(0, 1).toDouble());
+        }
       },
     );
-
     if (!mounted) return;
     setState(() => _isSubmitting = false);
 
     if (jobId == null || jobId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to upload video. ${ProcessingService.lastError ?? ''}')),
+        SnackBar(
+          content: Text(
+            'Upload failed. ${ProcessingService.lastError ?? 'Check the server address and try again.'}',
+          ),
+        ),
       );
       return;
     }
-
     Navigator.pushNamed(context, '/processing', arguments: {'jobId': jobId});
-  }
-
-  String _videoName() {
-    if (_selectedVideo == null) return 'No file selected';
-    return _selectedVideo!.name;
   }
 
   @override
   Widget build(BuildContext context) {
+    final videoName = _selectedVideo?.name ?? 'No video selected';
+    final progressText = _isSubmitting
+        ? '${(_uploadProgress * 100).round()}% uploaded'
+        : _selectedVideo == null
+        ? 'Choose an MP4, MOV, AVI, or MKV file'
+        : 'Ready to find the two kits';
+
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
+      appBar: AppBar(
+        title: const Text('New Analysis'),
+        backgroundColor: AppColors.backgroundLight,
+        foregroundColor: AppColors.textPrimary,
+        elevation: 0,
+      ),
       body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 4,
-                        ),
-                      ],
-                    ),
-                    child: IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.arrow_back_ios_new, size: 18),
-                    ),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 560),
+            child: ListView(
+              padding: const EdgeInsets.all(20),
+              children: [
+                const Text(
+                  'Add your match video',
+                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Footy AI finds two representative players first. You will name the teams from those images before analysis begins.',
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    height: 1.45,
                   ),
-                  const Expanded(
-                    child: Text(
-                      'New Analysis',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: 'Lexend',
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 40),
-                ],
-              ),
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Match Upload',
-                      style: TextStyle(
-                        fontFamily: 'Lexend',
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Prepare your video for AI tactical analysis.',
-                      style: TextStyle(
-                        fontFamily: 'Lexend',
-                        fontSize: 14,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(24),
+                ),
+                const SizedBox(height: 24),
+                Semantics(
+                  button: true,
+                  label: 'Select a match video',
+                  child: InkWell(
+                    onTap: _isSubmitting ? null : _pickVideo,
+                    borderRadius: BorderRadius.circular(16),
+                    child: Ink(
+                      padding: const EdgeInsets.all(28),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: AppColors.primary.withOpacity(0.45),
+                          color: AppColors.primary.withValues(alpha: 0.55),
                           width: 2,
                         ),
                       ),
                       child: Column(
                         children: [
-                          Container(
-                            width: 96,
-                            height: 96,
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withOpacity(0.12),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.cloud_upload,
-                              color: AppColors.primary,
-                              size: 44,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          const Text(
-                            'Upload match video',
-                            style: TextStyle(
-                              fontFamily: 'Lexend',
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Tap here to select a football match video\nfrom your library.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontFamily: 'Lexend',
-                              fontSize: 14,
-                              color: Colors.grey.shade600,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          SizedBox(
-                            height: 50,
-                            child: ElevatedButton(
-                              onPressed: _isSubmitting ? null : _pickVideo,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.primary,
-                                foregroundColor: Colors.black,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30),
-                                ),
-                              ),
-                              child: const Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 18),
-                                child: Text(
-                                  'Select Video',
-                                  style: TextStyle(
-                                    fontFamily: 'Lexend',
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'MP4, MOV UP TO 2GB',
-                            style: TextStyle(
-                              fontFamily: 'Lexend',
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 2,
-                              color: Colors.grey.shade500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 28),
-                    const Text(
-                      'Upload Progress',
-                      style: TextStyle(
-                        fontFamily: 'Lexend',
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              Container(
-                                width: 52,
-                                height: 52,
-                                decoration: BoxDecoration(
-                                  color: AppColors.primary.withOpacity(0.12),
-                                  borderRadius: BorderRadius.circular(14),
-                                ),
-                                child: const Icon(Icons.movie, color: AppColors.primary),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      _videoName(),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        fontFamily: 'Lexend',
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                    Text(
-                                      _isSubmitting
-                                          ? '${(_uploadProgress * 100).toStringAsFixed(0)}% uploaded'
-                                          : (_selectedVideo == null ? 'Waiting for file' : 'Ready to upload'),
-                                      style: const TextStyle(
-                                        fontFamily: 'Lexend',
-                                        fontSize: 12,
-                                        color: AppColors.primary,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              IconButton(
-                                onPressed: _isSubmitting
-                                    ? null
-                                    : () => setState(() => _selectedVideo = null),
-                                icon: const Icon(Icons.cancel, color: Colors.grey),
-                              ),
-                            ],
+                          const Icon(
+                            Icons.video_library_outlined,
+                            color: AppColors.primary,
+                            size: 48,
                           ),
                           const SizedBox(height: 14),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                _isSubmitting ? 'Uploading to AI Engine...' : 'Waiting to start...',
-                                style: TextStyle(
-                                  fontFamily: 'Lexend',
-                                  fontSize: 12,
-                                  color: Colors.grey.shade700,
-                                ),
-                              ),
-                              Text(
-                                '${(_uploadProgress * 100).toStringAsFixed(0)}%',
-                                style: const TextStyle(
-                                  fontFamily: 'Lexend',
-                                  fontSize: 14,
-                                  color: AppColors.primary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
+                          Text(
+                            videoName,
+                            maxLines: 2,
+                            textAlign: TextAlign.center,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                           const SizedBox(height: 8),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(6),
-                            child: LinearProgressIndicator(
-                              minHeight: 10,
-                              value: _uploadProgress,
-                              backgroundColor: Colors.grey.shade200,
-                              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
-                            ),
+                          Text(
+                            progressText,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(color: AppColors.textSecondary),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 20),
-                    Container(
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE8F0FF),
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                      child: const Row(
-                        children: [
-                          Icon(Icons.info, color: Color(0xFF1D4ED8)),
-                          SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              'AI generation typically takes 3-5 minutes depending on the video length. We\'ll notify you when it\'s ready.',
-                              style: TextStyle(
-                                fontFamily: 'Lexend',
-                                color: Color(0xFF1D4ED8),
-                                fontSize: 13,
-                                height: 1.4,
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 18),
-              child: Column(
-                children: [
-                  SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: _isSubmitting ? null : _submitFile,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary.withOpacity(0.55),
-                        foregroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(18),
-                        ),
-                      ),
-                      child: _isSubmitting
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.auto_awesome),
-                                SizedBox(width: 8),
-                                Text(
-                                  'Generate Summary',
-                                  style: TextStyle(
-                                    fontFamily: 'Lexend',
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
-                                  ),
-                                ),
-                              ],
-                            ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    'By proceeding, you agree to our Terms of Service',
-                    style: TextStyle(
-                      fontFamily: 'Lexend',
-                      fontSize: 12,
-                      color: Colors.grey.shade600,
-                    ),
-                  ),
+                if (_isSubmitting) ...[
+                  const SizedBox(height: 16),
+                  LinearProgressIndicator(value: _uploadProgress),
                 ],
-              ),
+                const SizedBox(height: 24),
+                FilledButton.icon(
+                  onPressed: _isSubmitting ? null : _pickVideo,
+                  icon: const Icon(Icons.folder_open_outlined),
+                  label: const Text('Select video'),
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size.fromHeight(52),
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                FilledButton.icon(
+                  onPressed: _isSubmitting ? null : _submitFile,
+                  icon: _isSubmitting
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.auto_awesome),
+                  label: Text(_isSubmitting ? 'Uploading…' : 'Detect the teams'),
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size.fromHeight(56),
+                    backgroundColor: AppColors.textPrimary,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

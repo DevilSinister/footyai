@@ -10,20 +10,13 @@ import 'screens/ai_video_upload.dart';
 import 'screens/match_highlights_list.dart';
 import 'screens/ai_predictions_screen.dart';
 import 'screens/expanded_highlight_view.dart';
+import 'screens/settings_screen.dart';
 import 'models/match_highlight.dart';
+import 'config/app_config.dart';
 
-import 'dart:io';
-
-class MyHttpOverrides extends HttpOverrides {
-  @override
-  HttpClient createHttpClient(SecurityContext? context) {
-    return super.createHttpClient(context)
-      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
-  }
-}
-
-void main() {
-  HttpOverrides.global = MyHttpOverrides();
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await AppConfig.load();
   runApp(const FootyAIApp());
 }
 
@@ -35,10 +28,7 @@ class FootyAIApp extends StatelessWidget {
     return MaterialApp(
       title: 'Footy AI',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.green,
-        fontFamily: 'Lexend',
-      ),
+      theme: ThemeData(primarySwatch: Colors.green, fontFamily: 'Lexend'),
       initialRoute: '/',
       onGenerateRoute: (settings) {
         if (settings.name == '/expanded') {
@@ -60,6 +50,7 @@ class FootyAIApp extends StatelessWidget {
         '/upload': (context) => AIVideoUpload(),
         '/highlights': (context) => MatchHighlightsList(),
         '/predictions': (context) => AIPredictionsScreen(),
+        '/settings': (context) => const SettingsScreen(),
       },
     );
   }

@@ -17,27 +17,22 @@ samples, guidance on mobile development, and a full API reference.
 
 ## Runtime API Configuration
 
-This app supports runtime endpoint configuration via `--dart-define`.
+This app supports runtime endpoint configuration via `--dart-define` or from
+the in-app **Settings** screen. For a physical device, use the computer's LAN
+IP; `10.0.2.2` only reaches the host from an Android emulator.
 
-You should pass these values at build time:
-- `DB_API_BASE_URL`
-- `PROCESSING_API_BASE_URL`
-
-- `DB_API_BASE_URL`: C# API base URL
-- `PROCESSING_API_BASE_URL`: Python FastAPI base URL
+Pass `API_BASE_URL` for the unified FastAPI service. The legacy
+`DB_API_BASE_URL` and `PROCESSING_API_BASE_URL` values remain supported for
+older split-service installations.
 
 Example:
 
 ```bash
-flutter run ^
-  --dart-define=DB_API_BASE_URL=http://<current-ip>/Footy_AI/api ^
-  --dart-define=PROCESSING_API_BASE_URL=http://<current-ip>:8000
+flutter run --dart-define=API_BASE_URL=http://<current-ip>:8000
 ```
 
 APK build example:
 
 ```bash
-flutter build apk ^
-  --dart-define=DB_API_BASE_URL=http://<current-ip>/Footy_AI/api ^
-  --dart-define=PROCESSING_API_BASE_URL=http://<current-ip>:8000
+flutter build apk --release --dart-define=API_BASE_URL=http://<current-ip>:8000
 ```

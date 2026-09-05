@@ -67,6 +67,9 @@ class _LoginScreenState extends State<LoginScreen>
           username: result.user!.username,
           email: result.user!.email,
         );
+        if (!mounted) {
+          return;
+        }
       }
       // Navigate to main app
       Navigator.pushReplacementNamed(context, '/home');
@@ -76,7 +79,9 @@ class _LoginScreenState extends State<LoginScreen>
           content: Text(result.message),
           backgroundColor: Colors.redAccent,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
       );
     }
@@ -170,12 +175,15 @@ class _LoginScreenState extends State<LoginScreen>
                                 icon: Icons.mail_outline_rounded,
                                 keyboardType: TextInputType.emailAddress,
                                 validator: (v) {
-                                  if (v == null || v.trim().isEmpty)
+                                  if (v == null || v.trim().isEmpty) {
                                     return 'Email is required';
+                                  }
                                   final emailRegex = RegExp(
-                                      r'^[\w.+-]+@[\w-]+\.[a-zA-Z]{2,}$');
-                                  if (!emailRegex.hasMatch(v.trim()))
+                                    r'^[\w.+-]+@[\w-]+\.[a-zA-Z]{2,}$',
+                                  );
+                                  if (!emailRegex.hasMatch(v.trim())) {
                                     return 'Enter a valid email';
+                                  }
                                   return null;
                                 },
                               ),
@@ -188,7 +196,8 @@ class _LoginScreenState extends State<LoginScreen>
                                 obscureText: _obscurePassword,
                                 suffixIcon: IconButton(
                                   onPressed: () => setState(
-                                      () => _obscurePassword = !_obscurePassword),
+                                    () => _obscurePassword = !_obscurePassword,
+                                  ),
                                   icon: Icon(
                                     _obscurePassword
                                         ? Icons.visibility_off_outlined
@@ -198,8 +207,9 @@ class _LoginScreenState extends State<LoginScreen>
                                   ),
                                 ),
                                 validator: (v) {
-                                  if (v == null || v.isEmpty)
+                                  if (v == null || v.isEmpty) {
                                     return 'Password is required';
+                                  }
                                   return null;
                                 },
                               ),
@@ -209,6 +219,17 @@ class _LoginScreenState extends State<LoginScreen>
                                 label: 'Log In',
                                 onPressed: _isLoading ? null : _handleLogin,
                                 isLoading: _isLoading,
+                              ),
+                              const SizedBox(height: 10),
+                              TextButton.icon(
+                                onPressed: _isLoading
+                                    ? null
+                                    : () => Navigator.pushNamed(
+                                        context,
+                                        '/settings',
+                                      ),
+                                icon: const Icon(Icons.settings_outlined),
+                                label: const Text('Server settings'),
                               ),
                             ],
                           ),
@@ -256,67 +277,66 @@ class _LoginScreenState extends State<LoginScreen>
   // ── Helpers ────────────────────────────────────────────────────────────────
 
   Widget _logo() => Stack(
-        alignment: Alignment.center,
-        children: [
-          Container(
-            width: 100,
-            height: 100,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppColors.primary.withOpacity(0.12),
-            ),
-          ),
-          Container(
-            width: 72,
-            height: 72,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withOpacity(0.2),
-                  blurRadius: 20,
-                  offset: const Offset(0, 6),
-                ),
-              ],
-            ),
-            child: const Icon(
-              Icons.smart_toy_outlined,
-              size: 38,
-              color: AppColors.primary,
-            ),
-          ),
-          Positioned(
-            bottom: 2,
-            right: 14,
-            child: Container(
-              width: 26,
-              height: 26,
-              decoration: BoxDecoration(
-                color: AppColors.primary,
-                borderRadius: BorderRadius.circular(7),
-              ),
-              child: const Icon(
-                Icons.sports_soccer,
-                size: 15,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ],
-      );
-
-  Widget _blob(double size, Color color, double opacity) => Container(
-        width: size,
-        height: size,
+    alignment: Alignment.center,
+    children: [
+      Container(
+        width: 100,
+        height: 100,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: color.withOpacity(opacity),
+          color: AppColors.primary.withValues(alpha: 0.12),
+        ),
+      ),
+      Container(
+        width: 72,
+        height: 72,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
           boxShadow: [
-            BoxShadow(color: color.withOpacity(opacity * 1.5), blurRadius: 80),
+            BoxShadow(
+              color: AppColors.primary.withValues(alpha: 0.2),
+              blurRadius: 20,
+              offset: const Offset(0, 6),
+            ),
           ],
         ),
-      );
+        child: const Icon(
+          Icons.smart_toy_outlined,
+          size: 38,
+          color: AppColors.primary,
+        ),
+      ),
+      Positioned(
+        bottom: 2,
+        right: 14,
+        child: Container(
+          width: 26,
+          height: 26,
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            borderRadius: BorderRadius.circular(7),
+          ),
+          child: const Icon(Icons.sports_soccer, size: 15, color: Colors.white),
+        ),
+      ),
+    ],
+  );
+
+  Widget _blob(double size, Color color, double opacity) => Container(
+    width: size,
+    height: size,
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      color: color.withValues(alpha: opacity),
+      boxShadow: [
+        BoxShadow(
+          color: color.withValues(alpha: opacity * 1.5),
+          blurRadius: 80,
+        ),
+      ],
+    ),
+  );
 
   Widget _buildTextField({
     required TextEditingController controller,
@@ -348,21 +368,27 @@ class _LoginScreenState extends State<LoginScreen>
         hintStyle: TextStyle(
           fontFamily: 'Lexend',
           fontSize: 13,
-          color: AppColors.textSecondary.withOpacity(0.5),
+          color: AppColors.textSecondary.withValues(alpha: 0.5),
         ),
         prefixIcon: Icon(icon, color: AppColors.textSecondary, size: 20),
         suffixIcon: suffixIcon,
         filled: true,
         fillColor: Colors.white,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 18,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: AppColors.primary.withOpacity(0.15)),
+          borderSide: BorderSide(
+            color: AppColors.primary.withValues(alpha: 0.15),
+          ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: AppColors.primary.withOpacity(0.15)),
+          borderSide: BorderSide(
+            color: AppColors.primary.withValues(alpha: 0.15),
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),

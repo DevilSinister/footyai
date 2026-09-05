@@ -24,6 +24,8 @@ class MatchEvent {
   factory MatchEvent.fromJson(Map<String, dynamic> json) {
     final type = (json['eventType'] ?? json['type'] ?? '').toString();
     final teamName = (json['teamName'] ?? 'team 1').toString();
+    final jerseyNumber = json['jerseyNumber'] ?? json['detectedJerseyNo'];
+    final playerName = json['playerName'] ?? json['detectedPlayerName'];
     final rawStartTime = json['startTime'] ?? json['time'] ?? '';
     final rawEndTime = json['endTime'] ?? '';
 
@@ -31,15 +33,37 @@ class MatchEvent {
       type: type,
       startTime: rawStartTime.toString(),
       endTime: rawEndTime.toString(),
-      title: _eventTitle(teamName, type),
-      detail: (json['description'] ?? json['eventName'] ?? json['detail'])?.toString(),
-      clipPath: (json['clipFileLocation'] ?? json['clip_path'] ?? json['clipPath'])?.toString(),
+      title: _eventTitle(
+        teamName,
+        type,
+        jerseyNumber?.toString(),
+        playerName?.toString(),
+      ),
+      detail: (json['description'] ?? json['eventName'] ?? json['detail'])
+          ?.toString(),
+      clipPath:
+          (json['clipFileLocation'] ?? json['clip_path'] ?? json['clipPath'])
+              ?.toString(),
     );
   }
 
-  static String _eventTitle(String teamName, String type) {
+  static String _eventTitle(
+    String teamName,
+    String type,
+    String? jerseyNumber,
+    String? playerName,
+  ) {
     final cleanTeam = teamName.trim().isEmpty ? 'team 1' : teamName.trim();
-    if (type == 'goal') return '${_titleCase(cleanTeam)} scored';
+    if (type == 'goal') {
+      final number = (jerseyNumber ?? '').trim();
+      final name = (playerName ?? '').trim();
+      final scorer = number.isEmpty
+          ? ''
+          : name.isEmpty
+          ? ' — #$number'
+          : ' — #$number ${_titleCase(name)}';
+      return '${_titleCase(cleanTeam)}$scorer scored';
+    }
     if (type == 'foul') return '${_titleCase(cleanTeam)} committed a foul';
     return '${_titleCase(cleanTeam)} ${type.replaceAll('_', ' ')}';
   }
@@ -103,7 +127,8 @@ class _AIMatchSummaryState extends State<AIMatchSummary> {
   }
 
   Future<void> _loadMatchEvents() async {
-    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     final dynamic matchId = args?['matchId'];
     if (matchId == null) return;
 
@@ -150,7 +175,8 @@ class _AIMatchSummaryState extends State<AIMatchSummary> {
         MatchEvent.fromJson({
           ...eventObj,
           ...item,
-          'teamName': playTeamNameById[playId] ?? eventObj['teamName'] ?? 'team 1',
+          'teamName':
+              playTeamNameById[playId] ?? eventObj['teamName'] ?? 'team 1',
         }),
       );
     }
@@ -219,11 +245,20 @@ class _AIMatchSummaryState extends State<AIMatchSummary> {
         children: [
           _circleButton(
             onPressed: () => Navigator.pop(context),
-            child: const Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary, size: 18),
+            child: const Icon(
+              Icons.arrow_back_ios_new,
+              color: AppColors.textPrimary,
+              size: 18,
+            ),
           ),
           const Text(
             'AI Match Summary',
-            style: TextStyle(fontFamily: 'Lexend', fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+            style: TextStyle(
+              fontFamily: 'Lexend',
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
+            ),
           ),
           _circleButton(
             child: const Icon(Icons.share, color: AppColors.primary, size: 20),
@@ -240,9 +275,13 @@ class _AIMatchSummaryState extends State<AIMatchSummary> {
       decoration: BoxDecoration(
         color: AppColors.white,
         shape: BoxShape.circle,
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4)],
+        boxShadow: [
+          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4),
+        ],
       ),
-      child: onPressed == null ? Center(child: child) : IconButton(onPressed: onPressed, icon: child),
+      child: onPressed == null
+          ? Center(child: child)
+          : IconButton(onPressed: onPressed, icon: child),
     );
   }
 
@@ -264,7 +303,11 @@ class _AIMatchSummaryState extends State<AIMatchSummary> {
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Text(
                 '$_teamAScore - $_teamBScore',
-                style: const TextStyle(fontFamily: 'Lexend', fontSize: 34, fontWeight: FontWeight.w800),
+                style: const TextStyle(
+                  fontFamily: 'Lexend',
+                  fontSize: 34,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ),
             Expanded(child: _buildTeamColumn(_teamBName, false)),
@@ -280,8 +323,15 @@ class _AIMatchSummaryState extends State<AIMatchSummary> {
         Container(
           width: 58,
           height: 58,
-          decoration: BoxDecoration(color: Colors.grey.shade100, shape: BoxShape.circle),
-          child: Icon(isHome ? Icons.shield_outlined : Icons.shield, size: 30, color: Colors.grey.shade400),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade100,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            isHome ? Icons.shield_outlined : Icons.shield,
+            size: 30,
+            color: Colors.grey.shade400,
+          ),
         ),
         const SizedBox(height: 8),
         Text(
@@ -289,7 +339,11 @@ class _AIMatchSummaryState extends State<AIMatchSummary> {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           textAlign: TextAlign.center,
-          style: const TextStyle(fontFamily: 'Lexend', fontSize: 13, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            fontFamily: 'Lexend',
+            fontSize: 13,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ],
     );
@@ -305,7 +359,13 @@ class _AIMatchSummaryState extends State<AIMatchSummary> {
             padding: const EdgeInsets.only(left: 4, bottom: 12),
             child: Text(
               'MATCH EVENTS',
-              style: TextStyle(fontFamily: 'Lexend', fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2, color: Colors.grey.shade500),
+              style: TextStyle(
+                fontFamily: 'Lexend',
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 2,
+                color: Colors.grey.shade500,
+              ),
             ),
           ),
           Container(
@@ -317,7 +377,12 @@ class _AIMatchSummaryState extends State<AIMatchSummary> {
             ),
             child: Column(
               children: _events.isEmpty
-                  ? const [Padding(padding: EdgeInsets.all(8), child: Text('No events available yet.'))]
+                  ? const [
+                      Padding(
+                        padding: EdgeInsets.all(8),
+                        child: Text('No events available yet.'),
+                      ),
+                    ]
                   : _events.map(_buildEventTile).toList(),
             ),
           ),
@@ -329,23 +394,54 @@ class _AIMatchSummaryState extends State<AIMatchSummary> {
   Widget _buildEventTile(MatchEvent event) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
-      decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade200), borderRadius: BorderRadius.circular(10)),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.shade200),
+        borderRadius: BorderRadius.circular(10),
+      ),
       child: ExpansionTile(
         tilePadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
         childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
         leading: Container(
           width: 30,
           height: 30,
-          decoration: BoxDecoration(color: _getEventColor(event.type).withOpacity(0.2), shape: BoxShape.circle),
-          child: Icon(_getEventIcon(event.type), color: _getEventColor(event.type), size: 16),
+          decoration: BoxDecoration(
+            color: _getEventColor(event.type).withValues(alpha: 0.2),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            _getEventIcon(event.type),
+            color: _getEventColor(event.type),
+            size: 16,
+          ),
         ),
-        title: Text(event.title, style: const TextStyle(fontFamily: 'Lexend', fontSize: 14, fontWeight: FontWeight.bold)),
-        subtitle: Text('${event.timeRange} - ${event.type}', style: TextStyle(fontFamily: 'Lexend', fontSize: 12, color: Colors.grey.shade600)),
+        title: Text(
+          event.title,
+          style: const TextStyle(
+            fontFamily: 'Lexend',
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        subtitle: Text(
+          '${event.timeRange} - ${event.type}',
+          style: TextStyle(
+            fontFamily: 'Lexend',
+            fontSize: 12,
+            color: Colors.grey.shade600,
+          ),
+        ),
         children: [
           if ((event.detail ?? '').isNotEmpty)
             Align(
               alignment: Alignment.centerLeft,
-              child: Text(event.detail!, style: TextStyle(fontFamily: 'Lexend', fontSize: 12, color: Colors.grey.shade800)),
+              child: Text(
+                event.detail!,
+                style: TextStyle(
+                  fontFamily: 'Lexend',
+                  fontSize: 12,
+                  color: Colors.grey.shade800,
+                ),
+              ),
             ),
           if ((event.clipPath ?? '').isNotEmpty) ...[
             const SizedBox(height: 10),
@@ -399,7 +495,9 @@ class _ClipVideoPlayerState extends State<ClipVideoPlayer> {
   }
 
   Future<void> _init() async {
-    final controller = VideoPlayerController.networkUrl(Uri.parse(_clipUrl(widget.clipPath)));
+    final controller = VideoPlayerController.networkUrl(
+      Uri.parse(_clipUrl(widget.clipPath)),
+    );
     try {
       await controller.initialize();
       if (!mounted) {
@@ -415,7 +513,9 @@ class _ClipVideoPlayerState extends State<ClipVideoPlayer> {
 
   String _clipUrl(String raw) {
     if (raw.startsWith('http://') || raw.startsWith('https://')) return raw;
-    if (raw.startsWith('/')) return _encodeClipUrl('${AppConfig.processingApiBaseUrl}$raw');
+    if (raw.startsWith('/')) {
+      return _encodeClipUrl('${AppConfig.processingApiBaseUrl}$raw');
+    }
 
     final normalized = raw.replaceAll('\\', '/');
     final parts = normalized.split('/');
@@ -423,14 +523,18 @@ class _ClipVideoPlayerState extends State<ClipVideoPlayer> {
     if (eventsIndex > 0 && eventsIndex < parts.length - 1) {
       final jobId = parts[eventsIndex - 1];
       final fileName = parts.last;
-      return _encodeClipUrl('${AppConfig.processingApiBaseUrl}/api/processing/clips/$jobId/$fileName');
+      return _encodeClipUrl(
+        '${AppConfig.processingApiBaseUrl}/api/processing/clips/$jobId/$fileName',
+      );
     }
     return raw;
   }
 
   String _encodeClipUrl(String url) {
     final uri = Uri.parse(url);
-    return uri.replace(pathSegments: uri.pathSegments.map(Uri.decodeComponent)).toString();
+    return uri
+        .replace(pathSegments: uri.pathSegments.map(Uri.decodeComponent))
+        .toString();
   }
 
   @override
@@ -444,12 +548,18 @@ class _ClipVideoPlayerState extends State<ClipVideoPlayer> {
     final controller = _controller;
     if (_failed) {
       return _videoFrame(
-        child: const Text('Clip preview unavailable', style: TextStyle(fontFamily: 'Lexend', fontSize: 12)),
+        child: const Text(
+          'Clip preview unavailable',
+          style: TextStyle(fontFamily: 'Lexend', fontSize: 12),
+        ),
       );
     }
     if (controller == null) {
       return _videoFrame(
-        child: const CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+        child: const CircularProgressIndicator(
+          strokeWidth: 2,
+          color: AppColors.primary,
+        ),
       );
     }
 
@@ -465,10 +575,14 @@ class _ClipVideoPlayerState extends State<ClipVideoPlayer> {
           IconButton.filled(
             onPressed: () {
               setState(() {
-                controller.value.isPlaying ? controller.pause() : controller.play();
+                controller.value.isPlaying
+                    ? controller.pause()
+                    : controller.play();
               });
             },
-            icon: Icon(controller.value.isPlaying ? Icons.pause : Icons.play_arrow),
+            icon: Icon(
+              controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+            ),
           ),
         ],
       ),
@@ -479,7 +593,10 @@ class _ClipVideoPlayerState extends State<ClipVideoPlayer> {
     return Container(
       height: 120,
       alignment: Alignment.center,
-      decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(8)),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(8),
+      ),
       child: child,
     );
   }

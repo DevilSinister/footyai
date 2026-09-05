@@ -12,3 +12,11 @@
 **/*.suo
 Footy_AI - Copy/
 DataBase API - Copy/
+
+# Local tooling / scratch (never commit)
+*.tmp
+android-commandlinetools.zip
+android-cmdline-tools-stage/
+android-commandlinetools-download.*.log
+tools/
+graphify-out/

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import '../theme.dart';
 import '../services/session_service.dart';
@@ -13,6 +15,7 @@ class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _progressAnimation;
+  Timer? _loadingTimer;
   double _progress = 0.0;
 
   @override
@@ -34,16 +37,18 @@ class _SplashScreenState extends State<SplashScreen>
     _startLoading();
   }
 
-  Future<void> _startLoading() async {
-    await Future.delayed(const Duration(seconds: 3));
-    final loggedIn = await SessionService.isLoggedIn();
-    if (mounted) {
-      Navigator.pushReplacementNamed(context, loggedIn ? '/home' : '/login');
-    }
+  void _startLoading() {
+    _loadingTimer = Timer(const Duration(seconds: 3), () async {
+      final loggedIn = await SessionService.isLoggedIn();
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, loggedIn ? '/home' : '/login');
+      }
+    });
   }
 
   @override
   void dispose() {
+    _loadingTimer?.cancel();
     _controller.dispose();
     super.dispose();
   }
@@ -203,16 +208,21 @@ class _SplashScreenState extends State<SplashScreen>
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
-                              'INITIALIZING ENGINE',
-                              style: TextStyle(
-                                fontFamily: 'Lexend',
-                                fontSize: 10,
-                                fontWeight: FontWeight.w500,
-                                letterSpacing: 2,
-                                color: AppColors.textPrimary,
+                            const Expanded(
+                              child: Text(
+                                'INITIALIZING ENGINE',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontFamily: 'Lexend',
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w500,
+                                  letterSpacing: 2,
+                                  color: AppColors.textPrimary,
+                                ),
                               ),
                             ),
+                            const SizedBox(width: 8),
                             Text(
                               '${(_progress * 100).toInt()}%',
                               style: const TextStyle(

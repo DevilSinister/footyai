@@ -5,9 +5,8 @@ import 'package:http/http.dart' as http;
 import '../models/ai_prediction.dart';
 import '../models/match_highlight.dart';
 import 'api_client.dart';
-
 class ApiService {
-  static final ApiClient _client = ApiClient();
+  static String get _baseUrl => ApiConstants.baseUrl;
 
   static Future<List<AIPrediction>> fetchPredictions({int? userId}) async {
     try {
@@ -29,7 +28,8 @@ class ApiService {
         final summary = await fetchMatchSummary(matchId);
         final scoreboard = _extractScoreboard(summary);
         final matchTime =
-            DateTime.tryParse((match['matchDate'] ?? '').toString()) ?? DateTime.now();
+            DateTime.tryParse((match['matchDate'] ?? '').toString()) ??
+            DateTime.now();
         final probabilities = _buildPredictionProbabilities(
           scoreboard['homeScore'],
           scoreboard['awayScore'],
@@ -73,7 +73,9 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>?> fetchLatestMatchSummary({int? userId}) async {
+  static Future<Map<String, dynamic>?> fetchLatestMatchSummary({
+    int? userId,
+  }) async {
     try {
       final matches = await fetchRecentMatches(userId: userId);
       if (matches.isEmpty) {
@@ -96,8 +98,9 @@ class ApiService {
 
   static Future<Map<String, dynamic>?> fetchMatchSummary(String matchId) async {
     try {
-      final uri = Uri.parse('${_client.baseUrl}${ApiConstants.processingGetMatchSummary}')
-          .replace(queryParameters: {'matchId': matchId});
+      final uri = Uri.parse(
+        '$_baseUrl${ApiConstants.matches}/$matchId',
+      );
       final response = await http.get(uri).timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {
@@ -109,11 +112,14 @@ class ApiService {
     }
   }
 
-  static Future<List<Map<String, dynamic>>> fetchRecentMatches({int? userId}) async {
+  static Future<List<Map<String, dynamic>>> fetchRecentMatches({
+    int? userId,
+  }) async {
     try {
       final effectiveUserId = (userId ?? 1).toString();
-      final uri = Uri.parse('${_client.baseUrl}${ApiConstants.processingGetByUser}')
-          .replace(queryParameters: {'userId': effectiveUserId});
+      final uri = Uri.parse(
+        '$_baseUrl${ApiConstants.matches}',
+      ).replace(queryParameters: {'user_id': effectiveUserId});
       final response = await http.get(uri).timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {
@@ -126,7 +132,9 @@ class ApiService {
     }
   }
 
-  static List<MatchHighlight> _buildHighlightsFromSummary(Map<String, dynamic> summary) {
+  static List<MatchHighlight> _buildHighlightsFromSummary(
+    Map<String, dynamic> summary,
+  ) {
     final teamsRaw = (summary['teams'] as List<dynamic>?) ?? const [];
     final eventsRaw = (summary['events'] as List<dynamic>?) ?? const [];
     final occurByRaw = (summary['occurBy'] as List<dynamic>?) ?? const [];
@@ -142,7 +150,8 @@ class ApiService {
       if (item is! Map<String, dynamic>) continue;
       final teamId = _readInt(item, ['teamId', 'tId', 'id']);
       if (teamId != null) {
-        teamNameById[teamId] = _readString(item, ['teamName', 'tName', 'name']) ?? 'Team $teamId';
+        teamNameById[teamId] =
+            _readString(item, ['teamName', 'tName', 'name']) ?? 'Team $teamId';
       }
     }
 
@@ -157,8 +166,18 @@ class ApiService {
 
     for (final item in playersRaw) {
       if (item is! Map<String, dynamic>) continue;
-      final playerId = _readInt(item, ['playerId', 'pId', 'id', 'playerLookupId']);
-      final playerName = _readString(item, ['playerName', 'name', 'fullName', 'username']);
+      final playerId = _readInt(item, [
+        'playerId',
+        'pId',
+        'id',
+        'playerLookupId',
+      ]);
+      final playerName = _readString(item, [
+        'playerName',
+        'name',
+        'fullName',
+        'username',
+      ]);
       if (playerId != null && playerName != null && playerName.isNotEmpty) {
         playerNameById[playerId] = playerName;
       }
@@ -180,21 +199,42 @@ class ApiService {
       final eventId = item['eventId'] ?? item['eId'] ?? item['id'];
       final eventObj = eventById[eventId] ?? <String, dynamic>{};
       final playId = _readInt(item, ['playId', 'plId', 'pId']);
-      final playerLookupId =
-          _readInt(item, ['playerLookupId', 'playerId', 'pId', 'detectedPlayerTrackId']);
-      final eventType = _readString(eventObj, ['eventType', 'type']) ??
+      final playerLookupId = _readInt(item, [
+        'playerLookupId',
+        'playerId',
+        'pId',
+        'detectedPlayerTrackId',
+      ]);
+      final detectedJersey =
+          _readInt(item, ['detectedJerseyNo', 'jerseyNumber', 'jerseyNo']) ??
+          _readInt(eventObj, ['jerseyNumber', 'detectedJerseyNo', 'jerseyNo']);
+      final eventType =
+          _readString(eventObj, ['eventType', 'type']) ??
           _readString(item, ['eventType', 'type']) ??
           'Event';
-      final description = _readString(eventObj, ['description', 'eventName', 'reason', 'detail']) ??
+      final description =
+          _readString(eventObj, [
+            'description',
+            'eventName',
+            'reason',
+            'detail',
+          ]) ??
           _readString(item, ['description', 'detail']) ??
           eventType;
-      final title = _readString(eventObj, ['eventName', 'title']) ?? description;
-      final timeValue = _readString(item, ['startTime', 'time']) ??
+      final title =
+          _readString(eventObj, ['eventName', 'title']) ?? description;
+      final timeValue =
+          _readString(item, ['startTime', 'time']) ??
           _readString(eventObj, ['time']) ??
           _formatSeconds(_readNum(eventObj, ['timeSec']));
-      final playerName = (playerLookupId != null && playerNameById[playerLookupId] != null)
+      final playerName =
+          (playerLookupId != null && playerNameById[playerLookupId] != null)
           ? playerNameById[playerLookupId]!
-          : _readString(eventObj, ['player', 'playerName']) ?? title;
+          : _readString(item, ['detectedPlayerName', 'playerName']) ??
+                _readString(eventObj, ['player', 'playerName']) ??
+                (detectedJersey == null
+                    ? 'Scorer unavailable'
+                    : '#$detectedJersey');
       final teamName = (playId != null && playTeamNameById[playId] != null)
           ? playTeamNameById[playId]!
           : _readString(eventObj, ['teamName', 'team']) ?? 'Team';
@@ -220,7 +260,13 @@ class ApiService {
         if (item is! Map<String, dynamic>) continue;
         final eventType = _readString(item, ['eventType', 'type']) ?? 'Event';
         final description =
-            _readString(item, ['description', 'eventName', 'reason', 'detail']) ?? eventType;
+            _readString(item, [
+              'description',
+              'eventName',
+              'reason',
+              'detail',
+            ]) ??
+            eventType;
         highlights.add(
           MatchHighlight(
             time: _readString(item, ['time', 'timeSec']) ?? '',
@@ -241,7 +287,9 @@ class ApiService {
     return highlights;
   }
 
-  static Map<String, dynamic> _extractScoreboard(Map<String, dynamic>? summary) {
+  static Map<String, dynamic> _extractScoreboard(
+    Map<String, dynamic>? summary,
+  ) {
     final teamsRaw = (summary?['teams'] as List<dynamic>?) ?? const [];
     final playRaw = (summary?['play'] as List<dynamic>?) ?? const [];
 
@@ -254,13 +302,15 @@ class ApiService {
 
     if (teamsRaw.isNotEmpty && teamsRaw.first is Map<String, dynamic>) {
       final firstTeam = teamsRaw.first as Map<String, dynamic>;
-      homeTeam = _readString(firstTeam, ['teamName', 'tName', 'name']) ?? homeTeam;
+      homeTeam =
+          _readString(firstTeam, ['teamName', 'tName', 'name']) ?? homeTeam;
       homeTeamId = _readInt(firstTeam, ['teamId', 'tId', 'id']) ?? homeTeamId;
     }
 
     if (teamsRaw.length > 1 && teamsRaw[1] is Map<String, dynamic>) {
       final secondTeam = teamsRaw[1] as Map<String, dynamic>;
-      awayTeam = _readString(secondTeam, ['teamName', 'tName', 'name']) ?? awayTeam;
+      awayTeam =
+          _readString(secondTeam, ['teamName', 'tName', 'name']) ?? awayTeam;
       awayTeamId = _readInt(secondTeam, ['teamId', 'tId', 'id']) ?? awayTeamId;
     }
 
@@ -284,7 +334,10 @@ class ApiService {
     };
   }
 
-  static Map<String, double> _buildPredictionProbabilities(int homeScore, int awayScore) {
+  static Map<String, double> _buildPredictionProbabilities(
+    int homeScore,
+    int awayScore,
+  ) {
     if (homeScore == awayScore) {
       return {'home': 0.33, 'draw': 0.34, 'away': 0.33};
     }
@@ -304,11 +357,16 @@ class ApiService {
     return 'The processed match favored the away side, with live data showing the stronger finish.';
   }
 
-  static int _compareMatchDates(Map<String, dynamic> left, Map<String, dynamic> right) {
+  static int _compareMatchDates(
+    Map<String, dynamic> left,
+    Map<String, dynamic> right,
+  ) {
     final leftDate =
-        DateTime.tryParse((left['matchDate'] ?? '').toString()) ?? DateTime.fromMillisecondsSinceEpoch(0);
+        DateTime.tryParse((left['matchDate'] ?? '').toString()) ??
+        DateTime.fromMillisecondsSinceEpoch(0);
     final rightDate =
-        DateTime.tryParse((right['matchDate'] ?? '').toString()) ?? DateTime.fromMillisecondsSinceEpoch(0);
+        DateTime.tryParse((right['matchDate'] ?? '').toString()) ??
+        DateTime.fromMillisecondsSinceEpoch(0);
     return leftDate.compareTo(rightDate);
   }
 

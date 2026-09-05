@@ -32,8 +32,8 @@ android {
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
+            // A debug-signed APK is installable for internal testing. Configure a
+            // private upload key before publishing to an app store.
             signingConfig = signingConfigs.getByName("debug")
         }
     }

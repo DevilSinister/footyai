@@ -2,14 +2,12 @@ import '../config/app_config.dart';
 
 class ApiConstants {
   static String get baseUrl => AppConfig.dbApiBaseUrl;
-  
-  static const String usersRegister = '/Users/Register';
-  static const String usersLogin = '/Users/Login';
-  static const String usersById = '/Users/GetUserById';
 
-  static const String processingIngest = '/Processing/IngestMatchSummary';
-  static const String processingGetByUser = '/Processing/GetMatchesByUser';
-  static const String processingGetMatchSummary = '/Processing/GetMatchSummary';
+  static const String usersRegister = '/api/users/register';
+  static const String usersLogin = '/api/users/login';
+  static const String usersById = '/api/users';
+
+  static const String matches = '/api/matches';
 }
 
 class ApiClient {
