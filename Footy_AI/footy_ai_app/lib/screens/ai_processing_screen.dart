@@ -24,55 +24,101 @@ class _AIProcessingScreenState extends State<AIProcessingScreen> {
   final _teamOneController = TextEditingController();
   final _teamTwoController = TextEditingController();
   bool _isConfirming = false;
+  bool _pollingStarted = false;
+  bool _pollInFlight = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     _jobId ??= args?['jobId'] as String?;
-    if (_jobId != null && _pollTimer == null) {
-      _pollTimer = Timer.periodic(const Duration(seconds: 2), (_) => _poll());
-      _poll();
+    // didChangeDependencies can fire more than once; from here on the timer is
+    // owned by _startPolling/_stopPolling.
+    if (_jobId != null && !_pollingStarted) {
+      _pollingStarted = true;
+      _startPolling();
     }
+  }
+
+  void _startPolling() {
+    _pollTimer?.cancel();
+    _pollTimer = Timer.periodic(const Duration(seconds: 2), (_) => _poll());
+    _poll();
+  }
+
+  void _stopPolling() {
+    _pollTimer?.cancel();
+    // Must be nulled, not merely cancelled. Leaving a dead Timer here is what
+    // made the restart after team confirmation a no-op, freezing the bar at 15%
+    // and never reaching the 'completed' branch that opens the summary.
+    _pollTimer = null;
   }
 
   Future<void> _poll() async {
     final jobId = _jobId;
-    if (jobId == null || _isConfirming) return;
-    final statusData = await ProcessingService.getStatus(jobId);
-    if (!mounted) return;
-    if (statusData == null) {
-      setState(() => _error = ProcessingService.lastError ?? 'Unable to reach the processing server.');
-      return;
-    }
-
-    final status = (statusData['status'] ?? '').toString();
-    final candidates = (statusData['team_candidates'] as List<dynamic>? ?? const [])
-        .whereType<Map<String, dynamic>>()
-        .toList();
-    setState(() {
-      _status = status;
-      _stage = (statusData['stage'] ?? _stage).toString();
-      _progressPercent = ((statusData['progress_percent'] as num?)?.toInt() ??
-              _progressPercent)
-          .clamp(0, 100)
-          .toInt();
-      _error = statusData['error']?.toString();
-      _teamCandidates = candidates;
-    });
-
-    if (status == 'awaiting_team_confirmation' || status == 'failed') {
-      _pollTimer?.cancel();
-      return;
-    }
-    if (status == 'completed') {
-      _pollTimer?.cancel();
-      final resultData = await ProcessingService.getResult(jobId);
+    if (jobId == null || _isConfirming || _pollInFlight) return;
+    _pollInFlight = true;
+    try {
+      final statusData = await ProcessingService.getStatus(jobId);
       if (!mounted) return;
-      final result = resultData?['result'] as Map<String, dynamic>?;
-      final dbResponse = result?['db_response'] as Map<String, dynamic>?;
-      final matchId = dbResponse?['matchId'] ?? result?['match_id'];
-      Navigator.pushReplacementNamed(context, '/summary', arguments: {'matchId': matchId});
+      if (statusData == null) {
+        setState(
+          () => _error =
+              ProcessingService.lastError ??
+              'Unable to reach the processing server.',
+        );
+        return;
+      }
+
+      final status = (statusData['status'] ?? '').toString();
+      final candidates =
+          (statusData['team_candidates'] as List<dynamic>? ?? const [])
+              .whereType<Map<String, dynamic>>()
+              .toList();
+      // Parsed leniently: a hard `as num?` cast threw inside the setState
+      // closure whenever the server sent the percentage as a string, which
+      // skipped the rebuild and silently killed the rest of this method.
+      final progress = num.tryParse(
+        statusData['progress_percent']?.toString() ?? '',
+      );
+      setState(() {
+        _status = status;
+        _stage = (statusData['stage'] ?? _stage).toString();
+        _progressPercent = (progress?.toInt() ?? _progressPercent).clamp(
+          0,
+          100,
+        );
+        _error = statusData['error']?.toString();
+        _teamCandidates = candidates;
+      });
+
+      if (status == 'awaiting_team_confirmation' || status == 'failed') {
+        _stopPolling();
+        return;
+      }
+      if (status == 'completed') {
+        _stopPolling();
+        final resultData = await ProcessingService.getResult(jobId);
+        if (!mounted) return;
+        final result = resultData?['result'] as Map<String, dynamic>?;
+        final dbResponse = result?['db_response'] as Map<String, dynamic>?;
+        final matchId = dbResponse?['matchId'] ?? result?['match_id'];
+        if (matchId == null) {
+          setState(
+            () => _error =
+                'Analysis finished but no match id came back. Open it from the match list.',
+          );
+          return;
+        }
+        Navigator.pushReplacementNamed(
+          context,
+          '/summary',
+          arguments: {'matchId': matchId},
+        );
+      }
+    } finally {
+      _pollInFlight = false;
     }
   }
 
@@ -101,7 +147,10 @@ class _AIProcessingScreenState extends State<AIProcessingScreen> {
     if (!mounted) return;
     setState(() => _isConfirming = false);
     if (!confirmed) {
-      setState(() => _error = ProcessingService.lastError ?? 'Unable to confirm the teams.');
+      setState(
+        () => _error =
+            ProcessingService.lastError ?? 'Unable to confirm the teams.',
+      );
       return;
     }
     setState(() {
@@ -109,13 +158,14 @@ class _AIProcessingScreenState extends State<AIProcessingScreen> {
       _stage = 'Team names confirmed';
       _progressPercent = 14;
     });
-    _pollTimer ??= Timer.periodic(const Duration(seconds: 2), (_) => _poll());
-    _poll();
+    _startPolling();
   }
 
   String _imageUrl(Map<String, dynamic> candidate) {
     final path = candidate['sample_image']?.toString() ?? '';
-    return path.startsWith('http') ? path : '${AppConfig.processingApiBaseUrl}$path';
+    return path.startsWith('http')
+        ? path
+        : '${AppConfig.processingApiBaseUrl}$path';
   }
 
   @override
@@ -146,20 +196,29 @@ class _AIProcessingScreenState extends State<AIProcessingScreen> {
               children: [
                 Text(
                   waitingForNames ? 'Which team is each kit?' : _stage,
-                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   waitingForNames
                       ? 'Use the player images below to name the two teams. We use the detected kit colors automatically.'
                       : 'Your video is being analyzed. This page will update as each stage completes.',
-                  style: const TextStyle(color: AppColors.textSecondary, height: 1.45),
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    height: 1.45,
+                  ),
                 ),
                 const SizedBox(height: 24),
                 if (!waitingForNames) ...[
                   LinearProgressIndicator(value: _progressPercent / 100),
                   const SizedBox(height: 10),
-                  Text('$_progressPercent% · $_status', style: const TextStyle(fontWeight: FontWeight.w700)),
+                  Text(
+                    '$_progressPercent% · $_status',
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
                 ] else ...[
                   _candidateInput(0, _teamOneController, 'Team 1'),
                   const SizedBox(height: 16),
@@ -172,12 +231,19 @@ class _AIProcessingScreenState extends State<AIProcessingScreen> {
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.black,
                     ),
-                    child: Text(_isConfirming ? 'Confirming…' : 'Confirm teams and start analysis'),
+                    child: Text(
+                      _isConfirming
+                          ? 'Confirming…'
+                          : 'Confirm teams and start analysis',
+                    ),
                   ),
                 ],
                 if (_error != null) ...[
                   const SizedBox(height: 20),
-                  Text(_error!, style: const TextStyle(color: Colors.red, height: 1.4)),
+                  Text(
+                    _error!,
+                    style: const TextStyle(color: Colors.red, height: 1.4),
+                  ),
                   if (_status == 'failed')
                     TextButton(
                       onPressed: () => Navigator.pop(context),
@@ -192,8 +258,14 @@ class _AIProcessingScreenState extends State<AIProcessingScreen> {
     );
   }
 
-  Widget _candidateInput(int index, TextEditingController controller, String fallbackLabel) {
-    final candidate = index < _teamCandidates.length ? _teamCandidates[index] : null;
+  Widget _candidateInput(
+    int index,
+    TextEditingController controller,
+    String fallbackLabel,
+  ) {
+    final candidate = index < _teamCandidates.length
+        ? _teamCandidates[index]
+        : null;
     final label = candidate?['label']?.toString() ?? fallbackLabel;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -205,7 +277,10 @@ class _AIProcessingScreenState extends State<AIProcessingScreen> {
               aspectRatio: 16 / 9,
               child: Image.network(
                 _imageUrl(candidate),
-                fit: BoxFit.cover,
+                // The server sends a 16:9 view zoomed out around the player with
+                // their box drawn on. `cover` would crop that box away.
+                fit: BoxFit.contain,
+                filterQuality: FilterQuality.medium,
                 errorBuilder: (_, _, _) => const ColoredBox(
                   color: Colors.white,
                   child: Center(child: Icon(Icons.person_outline, size: 44)),

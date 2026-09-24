@@ -25,9 +25,10 @@ class _SplashScreenState extends State<SplashScreen>
       duration: const Duration(seconds: 3),
       vsync: this,
     );
-    _progressAnimation = Tween<double>(begin: 0.0, end: 0.65).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _progressAnimation = Tween<double>(
+      begin: 0.0,
+      end: 0.65,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
     _controller.forward();
     _controller.addListener(() {
       setState(() {
@@ -60,9 +61,7 @@ class _SplashScreenState extends State<SplashScreen>
         children: [
           Positioned.fill(
             child: Container(
-              decoration: BoxDecoration(
-                color: AppColors.backgroundLight,
-              ),
+              decoration: BoxDecoration(color: AppColors.backgroundLight),
             ),
           ),
           Positioned(

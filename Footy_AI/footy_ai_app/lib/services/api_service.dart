@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import '../models/ai_prediction.dart';
 import '../models/match_highlight.dart';
 import 'api_client.dart';
+
 class ApiService {
   static String get _baseUrl => ApiConstants.baseUrl;
 
@@ -98,9 +99,7 @@ class ApiService {
 
   static Future<Map<String, dynamic>?> fetchMatchSummary(String matchId) async {
     try {
-      final uri = Uri.parse(
-        '$_baseUrl${ApiConstants.matches}/$matchId',
-      );
+      final uri = Uri.parse('$_baseUrl${ApiConstants.matches}/$matchId');
       final response = await http.get(uri).timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {
@@ -192,11 +191,19 @@ class ApiService {
 
     final scoreboard = _extractScoreboard(summary);
     final highlights = <MatchHighlight>[];
+    // The backend stores one occurrence per participant (passer and receiver,
+    // shooter and keeper, booked player and referee). The first row for an
+    // event is its primary actor; the rest would render as duplicates.
+    final seenEventIds = <dynamic>{};
 
     for (final item in occurByRaw) {
       if (item is! Map<String, dynamic>) continue;
 
       final eventId = item['eventId'] ?? item['eId'] ?? item['id'];
+      if (eventId != null) {
+        if (seenEventIds.contains(eventId)) continue;
+        seenEventIds.add(eventId);
+      }
       final eventObj = eventById[eventId] ?? <String, dynamic>{};
       final playId = _readInt(item, ['playId', 'plId', 'pId']);
       final playerLookupId = _readInt(item, [
@@ -235,18 +242,31 @@ class ApiService {
                 (detectedJersey == null
                     ? 'Scorer unavailable'
                     : '#$detectedJersey');
-      final teamName = (playId != null && playTeamNameById[playId] != null)
-          ? playTeamNameById[playId]!
-          : _readString(eventObj, ['teamName', 'team']) ?? 'Team';
+      final teamName = _cleanTeamName(
+        (playId != null && playTeamNameById[playId] != null)
+            ? playTeamNameById[playId]
+            : _readString(item, ['detectedTeamName']) ??
+                  _readString(eventObj, ['teamName', 'team']),
+      );
+      final clipPath =
+          _readString(eventObj, [
+            'clipFileLocation',
+            'clipPath',
+            'clip_path',
+            'videoPath',
+            'video_path',
+          ]) ??
+          _readString(item, ['clipFileLocation', 'clipPath', 'clip_path']);
 
       highlights.add(
         MatchHighlight(
           time: timeValue,
           title: title,
           player: playerName,
-          type: _titleCase(eventType),
+          type: _highlightType(eventType),
           team: teamName,
           description: description,
+          clipPath: clipPath,
           scoreHome: scoreboard['homeScore'],
           scoreAway: scoreboard['awayScore'],
           teamHome: scoreboard['homeTeam'],
@@ -272,9 +292,16 @@ class ApiService {
             time: _readString(item, ['time', 'timeSec']) ?? '',
             title: _readString(item, ['eventName', 'title']) ?? description,
             player: _readString(item, ['player', 'playerName']) ?? description,
-            type: _titleCase(eventType),
-            team: _readString(item, ['teamName', 'team']) ?? 'Team',
+            type: _highlightType(eventType),
+            team: _cleanTeamName(_readString(item, ['teamName', 'team'])),
             description: description,
+            clipPath: _readString(item, [
+              'clipFileLocation',
+              'clipPath',
+              'clip_path',
+              'videoPath',
+              'video_path',
+            ]),
             scoreHome: scoreboard['homeScore'],
             scoreAway: scoreboard['awayScore'],
             teamHome: scoreboard['homeTeam'],
@@ -378,12 +405,37 @@ class ApiService {
     return '$minutes:${remainder.toString().padLeft(2, '0')}';
   }
 
+  /// Display type for the highlight filters. The backend emits
+  /// `yellow_card` and `red_card`; both belong under the Cards filter.
+  static String _highlightType(String eventType) {
+    final normalised = eventType.trim().toLowerCase();
+    if (normalised.endsWith('_card') || normalised == 'card') return 'Card';
+    if (normalised == 'save') return 'Save';
+    if (normalised == 'goal') return 'Goal';
+    if (normalised == 'pass') return 'Pass';
+    if (normalised == 'cross') return 'Cross';
+    return _titleCase(normalised.replaceAll('_', ' '));
+  }
+
   static String _titleCase(String value) {
     return value
         .split(RegExp(r'[_\s]+'))
         .where((part) => part.isNotEmpty)
         .map((part) => part[0].toUpperCase() + part.substring(1).toLowerCase())
         .join(' ');
+  }
+
+  /// Drops the backend's internal placeholders so they never reach the UI.
+  ///
+  /// The pipeline emits `unknown_team` when it cannot attribute an event, and
+  /// this used to fall through to the bare literal `'Team'`. Returning null lets
+  /// each screen decide how to render a missing team instead of printing a token.
+  static String? _cleanTeamName(String? value) {
+    final text = value?.trim() ?? '';
+    if (text.isEmpty) return null;
+    final normalized = text.toLowerCase().replaceAll(' ', '_');
+    if (normalized == 'unknown_team' || normalized == 'unknown') return null;
+    return _titleCase(text);
   }
 
   static int? _readInt(Map<String, dynamic> item, List<String> keys) {

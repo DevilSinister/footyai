@@ -19,7 +19,10 @@ class _AIPredictionsScreenState extends State<AIPredictionsScreen> {
   void initState() {
     super.initState();
     _refresh();
-    _refreshTimer = Timer.periodic(const Duration(seconds: 8), (_) => _refresh());
+    _refreshTimer = Timer.periodic(
+      const Duration(seconds: 8),
+      (_) => _refresh(),
+    );
   }
 
   @override
@@ -57,7 +60,9 @@ class _AIPredictionsScreenState extends State<AIPredictionsScreen> {
         future: _matchesFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+            return const Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
+            );
           }
           if (snapshot.hasError) {
             return _buildRetry('Failed to load matches');
@@ -68,7 +73,8 @@ class _AIPredictionsScreenState extends State<AIPredictionsScreen> {
           }
 
           final grouped = _groupByDate(matches);
-          final dateKeys = grouped.keys.toList()..sort((a, b) => b.compareTo(a));
+          final dateKeys = grouped.keys.toList()
+            ..sort((a, b) => b.compareTo(a));
 
           return RefreshIndicator(
             color: AppColors.primary,
@@ -88,7 +94,9 @@ class _AIPredictionsScreenState extends State<AIPredictionsScreen> {
     );
   }
 
-  Map<String, List<Map<String, dynamic>>> _groupByDate(List<Map<String, dynamic>> matches) {
+  Map<String, List<Map<String, dynamic>>> _groupByDate(
+    List<Map<String, dynamic>> matches,
+  ) {
     final grouped = <String, List<Map<String, dynamic>>>{};
     for (final m in matches) {
       final raw = (m['matchDate'] ?? '').toString();
@@ -203,11 +211,17 @@ class _AIPredictionsScreenState extends State<AIPredictionsScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(text, style: const TextStyle(fontFamily: 'Lexend', fontSize: 14)),
+          Text(
+            text,
+            style: const TextStyle(fontFamily: 'Lexend', fontSize: 14),
+          ),
           const SizedBox(height: 10),
           TextButton(
             onPressed: _refresh,
-            child: const Text('Retry', style: TextStyle(color: AppColors.primary)),
+            child: const Text(
+              'Retry',
+              style: TextStyle(color: AppColors.primary),
+            ),
           ),
         ],
       ),
@@ -215,7 +229,20 @@ class _AIPredictionsScreenState extends State<AIPredictionsScreen> {
   }
 
   String _formatDateHeader(DateTime date) {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     return '${date.day} ${months[date.month - 1]} ${date.year}';
   }
 

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:video_player/video_player.dart';
-import '../config/app_config.dart';
 import '../services/api_service.dart';
 import '../theme.dart';
+import '../widgets/clip_video_player.dart';
 
 class MatchEvent {
   final String type;
@@ -110,6 +109,10 @@ class AIMatchSummary extends StatefulWidget {
 }
 
 class _AIMatchSummaryState extends State<AIMatchSummary> {
+  /// Event types kept out of the Match Events list; same rule as the
+  /// highlights page (match_highlights_list.dart).
+  static const _recordedOnlyTypes = {'pass', 'save'};
+
   List<MatchEvent> _events = [];
   String _teamAName = 'Team A';
   String _teamBName = 'Team B';
@@ -167,9 +170,19 @@ class _AIMatchSummaryState extends State<AIMatchSummary> {
     }
 
     final events = <MatchEvent>[];
+    // The backend stores one occurrence per participant (a pass has a passer
+    // and a receiver), so the first row of each event is its primary actor and
+    // the rest would render as duplicates.
+    final seenEventIds = <dynamic>{};
     for (final item in occurByRaw) {
       if (item is! Map<String, dynamic>) continue;
       final eventObj = eventById[item['eventId']] ?? <String, dynamic>{};
+      // Passes and saves are recorded (they stay in the database and the
+      // event counts) but are not listed here. This is decided at display
+      // time, so it applies to matches analysed before the change too.
+      final type = (eventObj['eventType'] ?? '').toString().toLowerCase();
+      if (_recordedOnlyTypes.contains(type)) continue;
+      if (!seenEventIds.add(item['eventId'])) continue;
       final playId = (item['playId'] as num?)?.toInt();
       events.add(
         MatchEvent.fromJson({
@@ -472,132 +485,5 @@ class _AIMatchSummaryState extends State<AIMatchSummary> {
       default:
         return Icons.history;
     }
-  }
-}
-
-class ClipVideoPlayer extends StatefulWidget {
-  const ClipVideoPlayer({super.key, required this.clipPath});
-
-  final String clipPath;
-
-  @override
-  State<ClipVideoPlayer> createState() => _ClipVideoPlayerState();
-}
-
-class _ClipVideoPlayerState extends State<ClipVideoPlayer> {
-  VideoPlayerController? _controller;
-  bool _failed = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _init();
-  }
-
-  Future<void> _init() async {
-    final controller = VideoPlayerController.networkUrl(
-      Uri.parse(_clipUrl(widget.clipPath)),
-    );
-    try {
-      await controller.initialize();
-      if (!mounted) {
-        await controller.dispose();
-        return;
-      }
-      setState(() => _controller = controller);
-    } catch (_) {
-      await controller.dispose();
-      if (mounted) setState(() => _failed = true);
-    }
-  }
-
-  String _clipUrl(String raw) {
-    if (raw.startsWith('http://') || raw.startsWith('https://')) return raw;
-    if (raw.startsWith('/')) {
-      return _encodeClipUrl('${AppConfig.processingApiBaseUrl}$raw');
-    }
-
-    final normalized = raw.replaceAll('\\', '/');
-    final parts = normalized.split('/');
-    final eventsIndex = parts.lastIndexOf('events');
-    if (eventsIndex > 0 && eventsIndex < parts.length - 1) {
-      final jobId = parts[eventsIndex - 1];
-      final fileName = parts.last;
-      return _encodeClipUrl(
-        '${AppConfig.processingApiBaseUrl}/api/processing/clips/$jobId/$fileName',
-      );
-    }
-    return raw;
-  }
-
-  String _encodeClipUrl(String url) {
-    final uri = Uri.parse(url);
-    return uri
-        .replace(pathSegments: uri.pathSegments.map(Uri.decodeComponent))
-        .toString();
-  }
-
-  @override
-  void dispose() {
-    _controller?.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final controller = _controller;
-    if (_failed) {
-      return _videoFrame(
-        child: const Text(
-          'Clip preview unavailable',
-          style: TextStyle(fontFamily: 'Lexend', fontSize: 12),
-        ),
-      );
-    }
-    if (controller == null) {
-      return _videoFrame(
-        child: const CircularProgressIndicator(
-          strokeWidth: 2,
-          color: AppColors.primary,
-        ),
-      );
-    }
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(8),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          AspectRatio(
-            aspectRatio: controller.value.aspectRatio,
-            child: VideoPlayer(controller),
-          ),
-          IconButton.filled(
-            onPressed: () {
-              setState(() {
-                controller.value.isPlaying
-                    ? controller.pause()
-                    : controller.play();
-              });
-            },
-            icon: Icon(
-              controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _videoFrame({required Widget child}) {
-    return Container(
-      height: 120,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: child,
-    );
   }
 }

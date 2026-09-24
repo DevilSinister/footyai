@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme.dart';
 import '../models/match_highlight.dart';
+import '../widgets/clip_video_player.dart';
 
 class ExpandedHighlightView extends StatelessWidget {
   final MatchHighlight? highlight;
@@ -47,18 +48,12 @@ class ExpandedHighlightView extends StatelessWidget {
               color: AppColors.white,
               shape: BoxShape.circle,
               boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 4,
-                ),
+                BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4),
               ],
             ),
             child: IconButton(
               onPressed: () => Navigator.pop(context),
-              icon: const Icon(
-                Icons.expand_more,
-                color: AppColors.textPrimary,
-              ),
+              icon: const Icon(Icons.expand_more, color: AppColors.textPrimary),
             ),
           ),
           Column(
@@ -90,18 +85,12 @@ class ExpandedHighlightView extends StatelessWidget {
               color: AppColors.white,
               shape: BoxShape.circle,
               boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 4,
-                ),
+                BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4),
               ],
             ),
             child: IconButton(
               onPressed: () {},
-              icon: const Icon(
-                Icons.share,
-                color: AppColors.textPrimary,
-              ),
+              icon: const Icon(Icons.share, color: AppColors.textPrimary),
             ),
           ),
         ],
@@ -109,163 +98,39 @@ class ExpandedHighlightView extends StatelessWidget {
     );
   }
 
+  /// Three-letter badge for a team name.
+  ///
+  /// `teamHome`/`teamAway` default to an empty string, and calling
+  /// `substring(0, 3)` on that threw RangeError - the `?.` guarded the
+  /// highlight, not the string.
+  static String _abbreviate(String? teamName) {
+    final text = (teamName ?? '').trim();
+    if (text.isEmpty) return '';
+    return text.substring(0, text.length < 3 ? text.length : 3).toUpperCase();
+  }
+
   Widget _buildVideoPlayer() {
+    final clipPath = highlight?.clipPath ?? '';
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 12,
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            Stack(
-              children: [
-                Container(
-                  height: 200,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.grey.shade400,
-                        Colors.grey.shade600,
-                      ],
-                    ),
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(16),
-                      topRight: Radius.circular(16),
-                    ),
-                  ),
+      child: clipPath.isEmpty
+          ? Container(
+              height: 200,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                'No clip was saved for this event',
+                style: TextStyle(
+                  fontFamily: 'Lexend',
+                  fontSize: 12,
+                  color: Colors.grey.shade600,
                 ),
-                Container(
-                  height: 200,
-                  decoration: BoxDecoration(
-                    color: Colors.black26,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(16),
-                      topRight: Radius.circular(16),
-                    ),
-                  ),
-                ),
-                Positioned.fill(
-                  child: Center(
-                    child: Container(
-                      width: 64,
-                      height: 64,
-                      decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primary.withOpacity(0.4),
-                            blurRadius: 16,
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.play_arrow,
-                        color: Colors.white,
-                        size: 36,
-                      ),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [Colors.transparent, Colors.black54],
-                      ),
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Container(
-                                height: 6,
-                                decoration: BoxDecoration(
-                                  color: AppColors.primary,
-                                  borderRadius: BorderRadius.circular(3),
-                                ),
-                              ),
-                            ),
-                            Container(
-                              width: 12,
-                              height: 12,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: AppColors.primary,
-                                  width: 2,
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Container(
-                                height: 6,
-                                decoration: BoxDecoration(
-                                  color: Colors.white30,
-                                  borderRadius: BorderRadius.circular(3),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              '00:37 / 02:23',
-                              style: TextStyle(
-                                fontFamily: 'Lexend',
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                letterSpacing: 1,
-                              ),
-                            ),
-                            const Row(
-                              children: [
-                                Icon(
-                                  Icons.replay_10,
-                                  color: Colors.white,
-                                  size: 20,
-                                ),
-                                SizedBox(width: 12),
-                                Icon(
-                                  Icons.fullscreen,
-                                  color: Colors.white,
-                                  size: 20,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+              ),
+            )
+          : ClipVideoPlayer(clipPath: clipPath, placeholderHeight: 200),
     );
   }
 
@@ -278,10 +143,7 @@ class ExpandedHighlightView extends StatelessWidget {
           color: AppColors.white,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 8,
-            ),
+            BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8),
           ],
         ),
         child: Row(
@@ -348,7 +210,9 @@ class ExpandedHighlightView extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    highlight != null ? '${highlight!.player} • ${highlight!.time} Minute' : '',
+                    highlight != null
+                        ? '${highlight!.player} • ${highlight!.time} Minute'
+                        : '',
                     style: const TextStyle(
                       fontFamily: 'Lexend',
                       fontSize: 14,
@@ -374,7 +238,7 @@ class ExpandedHighlightView extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        highlight?.teamHome.substring(0, 3).toUpperCase() ?? '',
+                        _abbreviate(highlight?.teamHome),
                         style: const TextStyle(
                           fontFamily: 'Lexend',
                           fontSize: 10,
@@ -394,26 +258,20 @@ class ExpandedHighlightView extends StatelessWidget {
                     ],
                   ),
                 ),
-                Container(
-                  width: 1,
-                  height: 12,
-                  color: Colors.grey.shade300,
-                ),
+                Container(width: 1, height: 12, color: Colors.grey.shade300),
                 Container(
                   width: 50,
                   height: 50,
                   decoration: BoxDecoration(
                     color: AppColors.backgroundLight,
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: Colors.grey.shade200,
-                    ),
+                    border: Border.all(color: Colors.grey.shade200),
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        highlight?.teamAway.substring(0, 3).toUpperCase() ?? '',
+                        _abbreviate(highlight?.teamAway),
                         style: TextStyle(
                           fontFamily: 'Lexend',
                           fontSize: 10,
@@ -460,11 +318,14 @@ class ExpandedHighlightView extends StatelessWidget {
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
-              children: highlight?.stats
-                      .map((stat) => Padding(
-                            padding: const EdgeInsets.only(right: 12),
-                            child: _buildStatChip(stat.icon, stat.label),
-                          ))
+              children:
+                  highlight?.stats
+                      .map(
+                        (stat) => Padding(
+                          padding: const EdgeInsets.only(right: 12),
+                          child: _buildStatChip(stat.icon, stat.label),
+                        ),
+                      )
                       .toList() ??
                   [],
             ),
@@ -480,9 +341,7 @@ class ExpandedHighlightView extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.backgroundLight,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: AppColors.primary.withOpacity(0.1),
-        ),
+        border: Border.all(color: AppColors.primary.withOpacity(0.1)),
       ),
       child: Row(
         children: [
@@ -503,7 +362,8 @@ class ExpandedHighlightView extends StatelessWidget {
   }
 
   Widget _buildRelatedHighlights() {
-    if (highlight == null || highlight!.relatedHighlights.isEmpty) return const SizedBox.shrink();
+    if (highlight == null || highlight!.relatedHighlights.isEmpty)
+      return const SizedBox.shrink();
 
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -524,10 +384,16 @@ class ExpandedHighlightView extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             child: Row(
               children: highlight!.relatedHighlights
-                  .map((rel) => Padding(
-                        padding: const EdgeInsets.only(right: 12),
-                        child: _buildRelatedThumbnail(rel.time, rel.title, rel.subtitle),
-                      ))
+                  .map(
+                    (rel) => Padding(
+                      padding: const EdgeInsets.only(right: 12),
+                      child: _buildRelatedThumbnail(
+                        rel.time,
+                        rel.title,
+                        rel.subtitle,
+                      ),
+                    ),
+                  )
                   .toList(),
             ),
           ),
@@ -536,8 +402,7 @@ class ExpandedHighlightView extends StatelessWidget {
     );
   }
 
-  Widget _buildRelatedThumbnail(
-      String time, String title, String subtitle) {
+  Widget _buildRelatedThumbnail(String time, String title, String subtitle) {
     return SizedBox(
       width: 130,
       child: Column(
@@ -577,11 +442,7 @@ class ExpandedHighlightView extends StatelessWidget {
               ),
               const Positioned.fill(
                 child: Center(
-                  child: Icon(
-                    Icons.play_circle,
-                    color: Colors.white,
-                    size: 20,
-                  ),
+                  child: Icon(Icons.play_circle, color: Colors.white, size: 20),
                 ),
               ),
             ],

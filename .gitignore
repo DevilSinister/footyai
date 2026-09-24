@@ -20,3 +20,7 @@ android-cmdline-tools-stage/
 android-commandlinetools-download.*.log
 tools/
 graphify-out/
+
+# Local build and interpreter caches
+.gradle/
+__pycache__/

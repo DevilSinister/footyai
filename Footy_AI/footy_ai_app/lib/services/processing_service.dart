@@ -20,10 +20,7 @@ class ProcessingService {
               'Content-Type': 'application/json',
               'Accept': 'application/json',
             },
-            body: jsonEncode({
-              'video_url': videoUrl,
-              'user_id': userId,
-            }),
+            body: jsonEncode({'video_url': videoUrl, 'user_id': userId}),
           )
           .timeout(const Duration(seconds: 90));
 
@@ -74,13 +71,16 @@ class ProcessingService {
 
   static Future<Map<String, dynamic>?> getStatus(String jobId) async {
     try {
+      // Cleared per call. Without this, a failure from an earlier request stayed
+      // in lastError and surfaced on the next successful poll.
+      lastError = null;
       final response = await http
           .get(
             Uri.parse('$_processingBaseUrl/api/processing/status/$jobId'),
             headers: const {'Accept': 'application/json'},
           )
           .timeout(const Duration(seconds: 60));
-      if (response.statusCode != 200) return null;
+      if (response.statusCode != 200 && response.statusCode != 202) return null;
       return jsonDecode(response.body) as Map<String, dynamic>;
     } catch (e) {
       lastError = e.toString();
@@ -90,13 +90,14 @@ class ProcessingService {
 
   static Future<Map<String, dynamic>?> getResult(String jobId) async {
     try {
+      lastError = null;
       final response = await http
           .get(
             Uri.parse('$_processingBaseUrl/api/processing/result/$jobId'),
             headers: const {'Accept': 'application/json'},
           )
           .timeout(const Duration(seconds: 60));
-      if (response.statusCode != 200) return null;
+      if (response.statusCode != 200 && response.statusCode != 202) return null;
       return jsonDecode(response.body) as Map<String, dynamic>;
     } catch (e) {
       lastError = e.toString();
@@ -113,7 +114,9 @@ class ProcessingService {
       lastError = null;
       final response = await http
           .post(
-            Uri.parse('$_processingBaseUrl/api/processing/confirm-teams/$jobId'),
+            Uri.parse(
+              '$_processingBaseUrl/api/processing/confirm-teams/$jobId',
+            ),
             headers: const {
               'Content-Type': 'application/json',
               'Accept': 'application/json',

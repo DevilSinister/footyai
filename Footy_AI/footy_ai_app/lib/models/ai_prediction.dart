@@ -37,8 +37,8 @@ class AIPrediction {
       awayWinProb: (json['awayWinProb'] ?? 0.0).toDouble(),
       tacticalInsight: json['tacticalInsight'] ?? '',
       league: json['league'] ?? '',
-      matchTime: json['matchTime'] != null 
-          ? DateTime.parse(json['matchTime']) 
+      matchTime: json['matchTime'] != null
+          ? DateTime.parse(json['matchTime'])
           : DateTime.now(),
     );
   }

@@ -99,8 +99,9 @@ class _SignUpScreenState extends State<SignUpScreen>
           content: Text('Account created! Welcome, ${result.user?.username}.'),
           backgroundColor: AppColors.primary,
           behavior: SnackBarBehavior.floating,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
       );
       await Future.delayed(const Duration(milliseconds: 600));
@@ -111,8 +112,9 @@ class _SignUpScreenState extends State<SignUpScreen>
           content: Text(result.message),
           backgroundColor: Colors.redAccent,
           behavior: SnackBarBehavior.floating,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
       );
     }
@@ -240,7 +242,8 @@ class _SignUpScreenState extends State<SignUpScreen>
                                   if (v == null || v.trim().isEmpty)
                                     return 'Email is required';
                                   final emailRegex = RegExp(
-                                      r'^[\w.+-]+@[\w-]+\.[a-zA-Z]{2,}$');
+                                    r'^[\w.+-]+@[\w-]+\.[a-zA-Z]{2,}$',
+                                  );
                                   if (!emailRegex.hasMatch(v.trim()))
                                     return 'Enter a valid email';
                                   return null;
@@ -251,32 +254,34 @@ class _SignUpScreenState extends State<SignUpScreen>
                               StatefulBuilder(
                                 builder: (ctx, setLocalState) =>
                                     _buildTextField(
-                                  controller: _passwordCtrl,
-                                  label: 'Password',
-                                  hint: 'Min. 6 characters',
-                                  icon: Icons.lock_outline_rounded,
-                                  obscureText: _obscurePassword,
-                                  onChanged: (_) =>
-                                      setLocalState(() {}), // redraw meter
-                                  suffixIcon: IconButton(
-                                    onPressed: () => setState(() =>
-                                        _obscurePassword = !_obscurePassword),
-                                    icon: Icon(
-                                      _obscurePassword
-                                          ? Icons.visibility_off_outlined
-                                          : Icons.visibility_outlined,
-                                      color: AppColors.textSecondary,
-                                      size: 20,
+                                      controller: _passwordCtrl,
+                                      label: 'Password',
+                                      hint: 'Min. 6 characters',
+                                      icon: Icons.lock_outline_rounded,
+                                      obscureText: _obscurePassword,
+                                      onChanged: (_) =>
+                                          setLocalState(() {}), // redraw meter
+                                      suffixIcon: IconButton(
+                                        onPressed: () => setState(
+                                          () => _obscurePassword =
+                                              !_obscurePassword,
+                                        ),
+                                        icon: Icon(
+                                          _obscurePassword
+                                              ? Icons.visibility_off_outlined
+                                              : Icons.visibility_outlined,
+                                          color: AppColors.textSecondary,
+                                          size: 20,
+                                        ),
+                                      ),
+                                      validator: (v) {
+                                        if (v == null || v.isEmpty)
+                                          return 'Password is required';
+                                        if (v.length < 6)
+                                          return 'At least 6 characters';
+                                        return null;
+                                      },
                                     ),
-                                  ),
-                                  validator: (v) {
-                                    if (v == null || v.isEmpty)
-                                      return 'Password is required';
-                                    if (v.length < 6)
-                                      return 'At least 6 characters';
-                                    return null;
-                                  },
-                                ),
                               ),
                               // Strength bar
                               if (_passwordCtrl.text.isNotEmpty) ...[
@@ -291,8 +296,9 @@ class _SignUpScreenState extends State<SignUpScreen>
                                 icon: Icons.lock_outline_rounded,
                                 obscureText: _obscureConfirm,
                                 suffixIcon: IconButton(
-                                  onPressed: () => setState(() =>
-                                      _obscureConfirm = !_obscureConfirm),
+                                  onPressed: () => setState(
+                                    () => _obscureConfirm = !_obscureConfirm,
+                                  ),
                                   icon: Icon(
                                     _obscureConfirm
                                         ? Icons.visibility_off_outlined
@@ -312,8 +318,7 @@ class _SignUpScreenState extends State<SignUpScreen>
                               const SizedBox(height: 28),
                               _buildPrimaryButton(
                                 label: 'Create Account',
-                                onPressed:
-                                    _isLoading ? null : _handleSignUp,
+                                onPressed: _isLoading ? null : _handleSignUp,
                                 isLoading: _isLoading,
                               ),
                             ],
@@ -361,17 +366,16 @@ class _SignUpScreenState extends State<SignUpScreen>
   // ── Helpers ────────────────────────────────────────────────────────────────
 
   Widget _blob(double size, Color color, double opacity) => Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: color.withOpacity(opacity),
-          boxShadow: [
-            BoxShadow(
-                color: color.withOpacity(opacity * 1.5), blurRadius: 80),
-          ],
-        ),
-      );
+    width: size,
+    height: size,
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      color: color.withOpacity(opacity),
+      boxShadow: [
+        BoxShadow(color: color.withOpacity(opacity * 1.5), blurRadius: 80),
+      ],
+    ),
+  );
 
   Widget _buildStrengthBar() {
     return Row(
@@ -383,8 +387,7 @@ class _SignUpScreenState extends State<SignUpScreen>
               value: _passwordStrength,
               minHeight: 4,
               backgroundColor: Colors.grey.shade200,
-              valueColor:
-                  AlwaysStoppedAnimation<Color>(_strengthColor),
+              valueColor: AlwaysStoppedAnimation<Color>(_strengthColor),
             ),
           ),
         ),
@@ -440,8 +443,10 @@ class _SignUpScreenState extends State<SignUpScreen>
         suffixIcon: suffixIcon,
         filled: true,
         fillColor: Colors.white,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 18,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(color: AppColors.primary.withOpacity(0.15)),

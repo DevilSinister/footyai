@@ -145,7 +145,9 @@ class _AIVideoUploadState extends State<AIVideoUpload> {
                           Text(
                             progressText,
                             textAlign: TextAlign.center,
-                            style: const TextStyle(color: AppColors.textSecondary),
+                            style: const TextStyle(
+                              color: AppColors.textSecondary,
+                            ),
                           ),
                         ],
                       ),
@@ -177,7 +179,9 @@ class _AIVideoUploadState extends State<AIVideoUpload> {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Icon(Icons.auto_awesome),
-                  label: Text(_isSubmitting ? 'Uploading…' : 'Detect the teams'),
+                  label: Text(
+                    _isSubmitting ? 'Uploading…' : 'Detect the teams',
+                  ),
                   style: FilledButton.styleFrom(
                     minimumSize: const Size.fromHeight(56),
                     backgroundColor: AppColors.textPrimary,

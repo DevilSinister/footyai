@@ -3,6 +3,7 @@ import '../theme.dart';
 import '../models/match_highlight.dart';
 import '../services/api_service.dart';
 import '../services/session_service.dart';
+import '../widgets/clip_video_player.dart';
 
 class MatchHighlightsList extends StatefulWidget {
   const MatchHighlightsList({super.key});
@@ -13,7 +14,10 @@ class MatchHighlightsList extends StatefulWidget {
 
 class _MatchHighlightsListState extends State<MatchHighlightsList> {
   String _selectedFilter = 'All';
-  final List<String> _filters = ['All', 'Goals', 'Cards', 'Saves'];
+  // Only "All" and "Goals" (owner decision 2026-09-24). Passes and saves are
+  // recorded by the backend (events table, event counts) but are not
+  // highlights: they get no clip and no row here. See _filteredHighlights.
+  final List<String> _filters = ['All', 'Goals'];
 
   List<MatchHighlight> _highlights = [];
   _MatchSummaryInfo _summaryInfo = const _MatchSummaryInfo(
@@ -117,7 +121,10 @@ class _MatchHighlightsListState extends State<MatchHighlightsList> {
                       });
                       _loadContent();
                     },
-                    child: const Text('Retry', style: TextStyle(color: AppColors.primary)),
+                    child: const Text(
+                      'Retry',
+                      style: TextStyle(color: AppColors.primary),
+                    ),
                   ),
                 ],
               ),
@@ -298,10 +305,7 @@ class _MatchHighlightsListState extends State<MatchHighlightsList> {
             color: AppColors.white,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 4,
-              ),
+              BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4),
             ],
           ),
           child: Container(
@@ -379,7 +383,9 @@ class _MatchHighlightsListState extends State<MatchHighlightsList> {
                       style: TextStyle(
                         fontFamily: 'Lexend',
                         fontSize: 14,
-                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.w500,
                         color: isSelected
                             ? AppColors.textPrimary
                             : Colors.grey.shade600,
@@ -399,10 +405,6 @@ class _MatchHighlightsListState extends State<MatchHighlightsList> {
     switch (filter) {
       case 'Goals':
         return Icons.sports_soccer;
-      case 'Cards':
-        return Icons.style_outlined;
-      case 'Saves':
-        return Icons.pan_tool_outlined;
       default:
         return Icons.list;
     }
@@ -444,9 +446,7 @@ class _MatchHighlightsListState extends State<MatchHighlightsList> {
       child: ExpansionTile(
         tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         iconColor: Colors.grey,
         collapsedIconColor: Colors.grey,
         title: Row(
@@ -478,7 +478,11 @@ class _MatchHighlightsListState extends State<MatchHighlightsList> {
                   ),
                 ),
                 Text(
-                  '${highlight.player} (${highlight.team})',
+                  // Team is null when the pipeline could not attribute the
+                  // event; showing just the player beats printing "(Team)".
+                  (highlight.team ?? '').isEmpty
+                      ? highlight.player
+                      : '${highlight.player} (${highlight.team})',
                   style: TextStyle(
                     fontFamily: 'Lexend',
                     fontSize: 12,
@@ -491,91 +495,28 @@ class _MatchHighlightsListState extends State<MatchHighlightsList> {
         ),
         children: [
           if (highlight.description.isNotEmpty) ...[
-            Container(
-              height: 180,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Stack(
+            if ((highlight.clipPath ?? '').isNotEmpty)
+              ClipVideoPlayer(
+                clipPath: highlight.clipPath!,
+                placeholderHeight: 180,
+              )
+            else
+              Container(
+                height: 180,
                 alignment: Alignment.center,
-                children: [
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Colors.grey.shade400,
-                          Colors.grey.shade500,
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade200,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  'No clip was saved for this event',
+                  style: TextStyle(
+                    fontFamily: 'Lexend',
+                    fontSize: 12,
+                    color: Colors.grey.shade600,
                   ),
-                  Container(
-                    width: 56,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.primary.withOpacity(0.3),
-                          blurRadius: 12,
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.play_arrow,
-                      color: AppColors.textPrimary,
-                      size: 32,
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [Colors.transparent, Colors.black54],
-                        ),
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(12),
-                          bottomRight: Radius.circular(12),
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            '0:12',
-                            style: TextStyle(
-                              fontFamily: 'Lexend',
-                              fontSize: 10,
-                              color: Colors.white,
-                            ),
-                          ),
-                          const Text(
-                            '0:35',
-                            style: TextStyle(
-                              fontFamily: 'Lexend',
-                              fontSize: 10,
-                              color: Colors.white70,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(12),
@@ -583,10 +524,7 @@ class _MatchHighlightsListState extends State<MatchHighlightsList> {
                 color: AppColors.backgroundLight,
                 borderRadius: BorderRadius.circular(8),
                 border: const Border(
-                  left: BorderSide(
-                    color: AppColors.primary,
-                    width: 4,
-                  ),
+                  left: BorderSide(color: AppColors.primary, width: 4),
                 ),
               ),
               child: Column(
@@ -625,6 +563,11 @@ class _MatchHighlightsListState extends State<MatchHighlightsList> {
                 ],
               ),
             ),
+          ] else if ((highlight.clipPath ?? '').isNotEmpty) ...[
+            ClipVideoPlayer(
+              clipPath: highlight.clipPath!,
+              placeholderHeight: 180,
+            ),
           ] else ...[
             Container(
               height: 180,
@@ -641,12 +584,22 @@ class _MatchHighlightsListState extends State<MatchHighlightsList> {
               ),
             ),
           ],
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              onPressed: () => Navigator.pushNamed(
+                context,
+                '/expanded',
+                arguments: highlight,
+              ),
+              icon: const Icon(Icons.open_in_full, size: 16),
+              label: const Text('Open full view'),
+            ),
+          ),
         ],
-        onExpansionChanged: (expanded) {
-          if (expanded) {
-            Navigator.pushNamed(context, '/expanded', arguments: highlight);
-          }
-        },
+        // Expanding used to navigate straight to /expanded, so the clip inside
+        // the dropdown could never be seen. Opening the full view is an explicit
+        // action now.
       ),
     );
   }
@@ -696,11 +649,7 @@ class _MatchHighlightsListState extends State<MatchHighlightsList> {
         child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.play_circle,
-              color: AppColors.white,
-              size: 24,
-            ),
+            Icon(Icons.play_circle, color: AppColors.white, size: 24),
             SizedBox(width: 8),
             Text(
               'WATCH FULL HIGHLIGHT REEL',
@@ -726,19 +675,27 @@ class _MatchHighlightsListState extends State<MatchHighlightsList> {
     );
   }
 
+  /// Event types that are recorded but never listed as highlights. The backend
+  /// cuts no clip for either (highlights/segments.py, CLIP_EVENT_TYPES):
+  /// a match holds hundreds of passes, and a save is the end of a shot that
+  /// already has its own highlight.
+  static const _recordedOnlyTypes = {'pass', 'save'};
+
   List<MatchHighlight> get _filteredHighlights {
-    if (_selectedFilter == 'All') {
-      return _highlights;
+    final highlights = _highlights
+        .where(
+          (highlight) =>
+              !_recordedOnlyTypes.contains(highlight.type.toLowerCase()),
+        )
+        .toList();
+
+    if (_selectedFilter == 'Goals') {
+      return highlights
+          .where((highlight) => highlight.type.toLowerCase() == 'goal')
+          .toList();
     }
-
-    final expected = switch (_selectedFilter) {
-      'Goals' => 'goal',
-      'Cards' => 'card',
-      'Saves' => 'save',
-      _ => '',
-    };
-
-    return _highlights.where((highlight) => highlight.type.toLowerCase() == expected).toList();
+    // "All": goals, shots, crosses, penalties, fouls and cards.
+    return highlights;
   }
 }
 
@@ -768,9 +725,11 @@ class _MatchSummaryInfo {
     final teams = (summary['teams'] as List<dynamic>?) ?? const [];
     final play = (summary['play'] as List<dynamic>?) ?? const [];
     final scoreboard = _scoreboardFromSummary(teams, play);
-    final matchDateRaw = (match['mDate'] ?? match['matchDate'] ?? '').toString();
+    final matchDateRaw = (match['mDate'] ?? match['matchDate'] ?? '')
+        .toString();
     final matchDate = DateTime.tryParse(matchDateRaw);
-    final location = _readString(match, ['mLocation', 'location']) ?? 'Unknown location';
+    final location =
+        _readString(match, ['mLocation', 'location']) ?? 'Unknown location';
     final eventCount = (summary['events'] as List<dynamic>?)?.length ?? 0;
     final statusLabel = eventCount > 0 ? 'LIVE DATA LOADED' : 'NO EVENTS FOUND';
 
@@ -779,7 +738,9 @@ class _MatchSummaryInfo {
       awayTeam: scoreboard['awayTeam'] as String,
       homeScore: scoreboard['homeScore'] as int,
       awayScore: scoreboard['awayScore'] as int,
-      dateLabel: matchDate == null ? 'Latest processed match' : _formatDate(matchDate),
+      dateLabel: matchDate == null
+          ? 'Latest processed match'
+          : _formatDate(matchDate),
       location: location,
       statusLabel: statusLabel,
     );
@@ -798,13 +759,15 @@ class _MatchSummaryInfo {
 
     if (teams.isNotEmpty && teams.first is Map<String, dynamic>) {
       final firstTeam = teams.first as Map<String, dynamic>;
-      homeTeam = _readString(firstTeam, ['teamName', 'tName', 'name']) ?? homeTeam;
+      homeTeam =
+          _readString(firstTeam, ['teamName', 'tName', 'name']) ?? homeTeam;
       homeTeamId = _readInt(firstTeam, ['teamId', 'tId', 'id']) ?? homeTeamId;
     }
 
     if (teams.length > 1 && teams[1] is Map<String, dynamic>) {
       final secondTeam = teams[1] as Map<String, dynamic>;
-      awayTeam = _readString(secondTeam, ['teamName', 'tName', 'name']) ?? awayTeam;
+      awayTeam =
+          _readString(secondTeam, ['teamName', 'tName', 'name']) ?? awayTeam;
       awayTeamId = _readInt(secondTeam, ['teamId', 'tId', 'id']) ?? awayTeamId;
     }
 
@@ -848,7 +811,20 @@ class _MatchSummaryInfo {
   }
 
   static String _formatDate(DateTime date) {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     return '${date.day} ${months[date.month - 1]} ${date.year}';
   }
 }

@@ -63,7 +63,11 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               const Text(
                 'Welcome back',
-                style: TextStyle(fontFamily: 'Lexend', fontSize: 14, color: AppColors.textSecondary),
+                style: TextStyle(
+                  fontFamily: 'Lexend',
+                  fontSize: 14,
+                  color: AppColors.textSecondary,
+                ),
               ),
               const SizedBox(height: 4),
               RichText(
@@ -76,7 +80,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   children: [
                     TextSpan(text: 'Footy'),
-                    TextSpan(text: 'AI', style: TextStyle(color: AppColors.primary)),
+                    TextSpan(
+                      text: 'AI',
+                      style: TextStyle(color: AppColors.primary),
+                    ),
                   ],
                 ),
               ),
@@ -101,7 +108,9 @@ class _HomeScreenState extends State<HomeScreen> {
       decoration: BoxDecoration(
         color: AppColors.white,
         shape: BoxShape.circle,
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8)],
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8),
+        ],
       ),
       child: Icon(icon, color: AppColors.textPrimary),
     );
@@ -115,7 +124,12 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           const Text(
             'Quick Actions',
-            style: TextStyle(fontFamily: 'Lexend', fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+            style: TextStyle(
+              fontFamily: 'Lexend',
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
+            ),
           ),
           const SizedBox(height: 16),
           _buildActionCard(
@@ -123,7 +137,10 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icons.cloud_upload_outlined,
             label: 'Upload Match',
             color: AppColors.primary,
-            onTap: () => Navigator.pushNamed(context, '/upload').then((_) => _refreshRecentAnalysis()),
+            onTap: () => Navigator.pushNamed(
+              context,
+              '/upload',
+            ).then((_) => _refreshRecentAnalysis()),
           ),
           const SizedBox(height: 12),
           _buildActionCard(
@@ -131,7 +148,10 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icons.auto_awesome_outlined,
             label: 'AI Predictions',
             color: Colors.purple,
-            onTap: () => Navigator.pushNamed(context, '/predictions').then((_) => _refreshRecentAnalysis()),
+            onTap: () => Navigator.pushNamed(
+              context,
+              '/predictions',
+            ).then((_) => _refreshRecentAnalysis()),
           ),
         ],
       ),
@@ -153,20 +173,29 @@ class _HomeScreenState extends State<HomeScreen> {
         decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8)],
+          boxShadow: [
+            BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8),
+          ],
         ),
         child: Row(
           children: [
             Container(
               width: 48,
               height: 48,
-              decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
               child: Icon(icon, color: color, size: 24),
             ),
             const SizedBox(width: 14),
             Text(
               label,
-              style: const TextStyle(fontFamily: 'Lexend', fontSize: 14, fontWeight: FontWeight.w600),
+              style: const TextStyle(
+                fontFamily: 'Lexend',
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
             ),
             const Spacer(),
             Icon(Icons.chevron_right, color: color),
@@ -184,7 +213,12 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           const Text(
             'Recent Analysis',
-            style: TextStyle(fontFamily: 'Lexend', fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+            style: TextStyle(
+              fontFamily: 'Lexend',
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
+            ),
           ),
           const SizedBox(height: 16),
           FutureBuilder<List<Map<String, dynamic>>>(
@@ -206,7 +240,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     padding: const EdgeInsets.all(24),
                     child: Text(
                       'No analysis yet',
-                      style: TextStyle(fontFamily: 'Lexend', color: Colors.grey.shade500),
+                      style: TextStyle(
+                        fontFamily: 'Lexend',
+                        color: Colors.grey.shade500,
+                      ),
                     ),
                   ),
                 );
@@ -228,27 +265,49 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildRecentAnalysisCard(BuildContext context, Map<String, dynamic> match) {
+  Widget _buildRecentAnalysisCard(
+    BuildContext context,
+    Map<String, dynamic> match,
+  ) {
     final matchId = match['matchId'];
     final date = DateTime.tryParse((match['matchDate'] ?? '').toString());
-    final subtitle = date == null ? 'Analysis ready' : 'Analysis ready - ${_formatShortDate(date)}';
+    final subtitle = date == null
+        ? 'Analysis ready'
+        : 'Analysis ready - ${_formatShortDate(date)}';
 
     return GestureDetector(
-      onTap: () => Navigator.pushNamed(context, '/summary', arguments: {'matchId': matchId}),
+      onTap: () => Navigator.pushNamed(
+        context,
+        '/summary',
+        arguments: {'matchId': matchId},
+      ),
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Row(
           children: [
             Container(
               width: 56,
               height: 56,
-              decoration: BoxDecoration(color: AppColors.primary.withOpacity(0.1), borderRadius: BorderRadius.circular(14)),
-              child: const Icon(Icons.analytics_outlined, color: AppColors.primary, size: 28),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: const Icon(
+                Icons.analytics_outlined,
+                color: AppColors.primary,
+                size: 28,
+              ),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -257,12 +316,21 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Text(
                     'Match #$matchId',
-                    style: const TextStyle(fontFamily: 'Lexend', fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                    style: const TextStyle(
+                      fontFamily: 'Lexend',
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     subtitle,
-                    style: TextStyle(fontFamily: 'Lexend', fontSize: 12, color: Colors.grey.shade600),
+                    style: TextStyle(
+                      fontFamily: 'Lexend',
+                      fontSize: 12,
+                      color: Colors.grey.shade600,
+                    ),
                   ),
                 ],
               ),
@@ -275,7 +343,20 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   String _formatShortDate(DateTime date) {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     final hour = date.hour % 12 == 0 ? 12 : date.hour % 12;
     final minute = date.minute.toString().padLeft(2, '0');
     final suffix = date.hour >= 12 ? 'PM' : 'AM';

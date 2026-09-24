@@ -32,6 +32,12 @@ class MatchHighlight {
   final int scoreAway;
   final String teamHome;
   final String teamAway;
+
+  /// Served path of this event's clip, e.g.
+  /// `/api/processing/clips/<jobId>/goal-01.mp4`. Null when the backend produced
+  /// no clip for the event.
+  final String? clipPath;
+
   final List<MatchStat> stats;
   final List<RelatedHighlight> relatedHighlights;
 
@@ -48,6 +54,7 @@ class MatchHighlight {
     this.scoreAway = 0,
     this.teamHome = '',
     this.teamAway = '',
+    this.clipPath,
     this.stats = const [],
     this.relatedHighlights = const [],
   });
@@ -66,16 +73,32 @@ class MatchHighlight {
       scoreAway: json['scoreAway'] ?? 0,
       teamHome: json['teamHome'] ?? '',
       teamAway: json['teamAway'] ?? '',
-      stats: (json['stats'] as List<dynamic>?)
-              ?.map((s) => MatchStat(icon: _getIconFromString(s['icon']), label: s['label'] ?? ''))
+      clipPath:
+          (json['clipPath'] ??
+                  json['clipFileLocation'] ??
+                  json['clip_path'] ??
+                  json['videoPath'] ??
+                  json['video_path'])
+              ?.toString(),
+      stats:
+          (json['stats'] as List<dynamic>?)
+              ?.map(
+                (s) => MatchStat(
+                  icon: _getIconFromString(s['icon']),
+                  label: s['label'] ?? '',
+                ),
+              )
               .toList() ??
           [],
-      relatedHighlights: (json['relatedHighlights'] as List<dynamic>?)
-              ?.map((r) => RelatedHighlight(
-                    time: r['time'] ?? '',
-                    title: r['title'] ?? '',
-                    subtitle: r['subtitle'] ?? '',
-                  ))
+      relatedHighlights:
+          (json['relatedHighlights'] as List<dynamic>?)
+              ?.map(
+                (r) => RelatedHighlight(
+                  time: r['time'] ?? '',
+                  title: r['title'] ?? '',
+                  subtitle: r['subtitle'] ?? '',
+                ),
+              )
               .toList() ??
           [],
     );
