@@ -109,9 +109,12 @@ class AIMatchSummary extends StatefulWidget {
 }
 
 class _AIMatchSummaryState extends State<AIMatchSummary> {
-  /// Event types kept out of the Match Events list; same rule as the
-  /// highlights page (match_highlights_list.dart).
-  static const _recordedOnlyTypes = {'pass', 'save'};
+  /// Event types kept out of the Match Events list. Passes and saves follow
+  /// the highlights page (match_highlights_list.dart). Shots are shots on
+  /// target: the backend records and counts them (`shots_on_target` in the
+  /// job result) but, by the owner's decision (2026-09-24), this page does
+  /// not list them.
+  static const _recordedOnlyTypes = {'pass', 'save', 'shot'};
 
   List<MatchEvent> _events = [];
   String _teamAName = 'Team A';
@@ -177,8 +180,8 @@ class _AIMatchSummaryState extends State<AIMatchSummary> {
     for (final item in occurByRaw) {
       if (item is! Map<String, dynamic>) continue;
       final eventObj = eventById[item['eventId']] ?? <String, dynamic>{};
-      // Passes and saves are recorded (they stay in the database and the
-      // event counts) but are not listed here. This is decided at display
+      // Passes, saves and shots are recorded (they stay in the database and
+      // the event counts) but are not listed here. This is decided at display
       // time, so it applies to matches analysed before the change too.
       final type = (eventObj['eventType'] ?? '').toString().toLowerCase();
       if (_recordedOnlyTypes.contains(type)) continue;
